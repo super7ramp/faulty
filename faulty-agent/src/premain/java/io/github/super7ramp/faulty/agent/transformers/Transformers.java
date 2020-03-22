@@ -40,6 +40,20 @@ public final class Transformers {
 	}
 
 	/**
+	 * A transformer that modify specified method in specified class to inject it an
+	 * infinite loop. This infinite loop will check thread status so it can actually
+	 * be broken by Thread.interrupt().
+	 * 
+	 * @param transformableClassPredicate  the class name matching predicate
+	 * @param transformableMethodPredicate the method name matching predicate
+	 * @return the transformer
+	 */
+	public static final ClassFileTransformer interruptibleInfiniteLoopTransformer(
+			final Predicate<String> transformableClassPredicate, final Predicate<String> transformableMethodPredicate) {
+		return new InterruptibleInfiniteLoopTransformer(transformableClassPredicate, transformableMethodPredicate);
+	}
+
+	/**
 	 * A transformer that modify specified method in specified class to inject it a
 	 * throw of RuntimeException.
 	 * 

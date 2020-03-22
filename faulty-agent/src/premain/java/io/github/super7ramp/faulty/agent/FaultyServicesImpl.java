@@ -32,8 +32,14 @@ public final class FaultyServicesImpl implements FaultyServices {
 	public final void injectInfiniteLoop(final InfiniteLoopParameters parameters)
 			throws AgentNotLaunchedException, InjectionFailureException {
 		LOGGER.info("Injecting infinite loop in " + parameters.className());
-		final ClassFileTransformer transformer = Transformers.infiniteLoopTransformer(parameters.className()::equals,
-				parameters.methodName()::equals);
+		final ClassFileTransformer transformer;
+		if (parameters.interruptible()) {
+			transformer = Transformers.interruptibleInfiniteLoopTransformer(parameters.className()::equals,
+					parameters.methodName()::equals);
+		} else {
+			transformer = Transformers.infiniteLoopTransformer(parameters.className()::equals,
+					parameters.methodName()::equals);
+		}
 		injectAndTransform(parameters.className(), transformer);
 	}
 

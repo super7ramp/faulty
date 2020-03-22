@@ -11,9 +11,10 @@ public interface InfiniteLoopParameters {
 	/** Method name. */
 	String methodName();
 
-//	public final boolean interruptible();
+	/** Whether a thread interruption will break the injected loop. */
+	boolean interruptible();
 
-	static InfiniteLoopParameters of(final String className, final String methodName) {
+	static InfiniteLoopParameters of(final String className, final String methodName, final boolean isInterruptible) {
 		return new InfiniteLoopParameters() {
 			@Override
 			public String methodName() {
@@ -23,6 +24,11 @@ public interface InfiniteLoopParameters {
 			@Override
 			public String className() {
 				return className;
+			}
+
+			@Override
+			public boolean interruptible() {
+				return isInterruptible;
 			}
 		};
 	}
