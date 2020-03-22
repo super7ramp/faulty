@@ -1,0 +1,4 @@
+ext.libraries = [
+    asm: "org.ow2.asm:asm:${asmVersion}",
+    junit: 'junit:junit:4.13'
+]

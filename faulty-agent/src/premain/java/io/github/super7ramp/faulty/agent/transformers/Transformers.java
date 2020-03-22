@@ -1,0 +1,55 @@
+package io.github.super7ramp.faulty.agent.transformers;
+
+import java.lang.instrument.ClassFileTransformer;
+import java.util.function.Predicate;
+
+/**
+ * Factory of {@link ClassFileTransformer}s.
+ */
+public final class Transformers {
+
+	/**
+	 * Constructor.
+	 */
+	private Transformers() {
+		// nothing to do.
+	}
+
+	/**
+	 * A dummy transformer that will just rewrites input class as is.
+	 *
+	 * @param transformableClassPredicate only class satisfying this predicate will
+	 *                                    be transformed
+	 * @return the transformer
+	 */
+	public static final ClassFileTransformer dummyTransformer(final Predicate<String> transformableClassPredicate) {
+		return new DummyTransformer(transformableClassPredicate);
+	}
+
+	/**
+	 * A transformer that modify specified method in specified class to inject it an
+	 * infinite loop.
+	 * 
+	 * @param transformableClassPredicate  the class name matching predicate
+	 * @param transformableMethodPredicate the method name matching predicate
+	 * @return the transformer
+	 */
+	public static final ClassFileTransformer infiniteLoopTransformer(
+			final Predicate<String> transformableClassPredicate, final Predicate<String> transformableMethodPredicate) {
+		return new InfiniteLoopTransformer(transformableClassPredicate, transformableMethodPredicate);
+	}
+
+	/**
+	 * A transformer that modify specified method in specified class to inject it a
+	 * throw of RuntimeException.
+	 * 
+	 * @param transformableClassPredicate  the class name matching predicate
+	 * @param transformableMethodPredicate the method name matching predicate
+	 * @return the transformer
+	 */
+	public static final ClassFileTransformer runtimeExceptionTransformer(
+			final Predicate<String> transformableClassPredicate, final Predicate<String> transformableMethodPredicate) {
+		return new RuntimeExceptionTransformer(transformableClassPredicate, transformableMethodPredicate);
+	}
+
+}

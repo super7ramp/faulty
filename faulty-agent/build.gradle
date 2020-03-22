@@ -1,0 +1,20 @@
+dependencies {
+	compile libraries.asm
+	compile project(':faulty-api')
+	testCompile libraries.junit
+}
+
+jar {
+    manifest {
+        attributes 'Premain-Class': 'io.github.super7ramp.faulty.agent.FaultyAgentPremain',
+                   'Can-Retransform-Classes': 'true'
+    }
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = [ 'src/premain/java' ]
+        }
+    }
+}

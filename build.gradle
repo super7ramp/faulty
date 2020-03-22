@@ -1,0 +1,8 @@
+apply from: 'libraries.gradle'
+
+subprojects {
+    apply plugin: 'java'
+    repositories {
+        mavenCentral()
+    }
+}
