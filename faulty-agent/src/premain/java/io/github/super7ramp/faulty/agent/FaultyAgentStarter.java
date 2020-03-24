@@ -5,7 +5,6 @@ import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.function.Predicate;
 import java.util.logging.Logger;
 
 import io.github.super7ramp.faulty.agent.config.AgentConfiguration;
@@ -50,7 +49,7 @@ public final class FaultyAgentStarter {
 		 * 2. Apply pre-transformation with NoOpTransformer to the classes susceptible
 		 * to be transformed later.
 		 */
-		preTransform(conf.transformableClassPrefix());
+		preTransform(conf.classesToPreTransform());
 
 		/*
 		 * 3. Apply potential bugs specified statically in arguments.
@@ -60,45 +59,30 @@ public final class FaultyAgentStarter {
 		/*
 		 * 4. Store info inside InstrumentationProxy so they can be dynamically used
 		 */
-		InstrumentationProxy.getInstance().setInstrumentation(instrumentation, conf);
+		InstrumentationProxy.getInstance().attach(instrumentation);
 		LOGGER.info("Agent started.");
 	}
 
 	/**
-	 * TODO check if it's really necessary and if yes, finish implementation.
-	 * 
-	 * @param transformableClassPrefix
+	 * Pre-transform class, i.e. just apply the default ASM class visitor.
+	 *
+	 * @param classesToPreTransform the classes to pre-transform
 	 */
-	private void preTransform(final Collection<String> transformableClassPrefix) {
-		final Predicate<String> transformableClassPredicate = (className) -> transformableClassPrefix.stream()
-				.filter(className::startsWith).findAny().isPresent();
-		final ClassFileTransformer transformer = Transformers.dummyTransformer(transformableClassPredicate);
-
+	private void preTransform(final Collection<String> classesToPreTransform) {
 		/*
 		 * Build class list to transform.
 		 */
 		final Collection<Class<?>> classes = new ArrayList<>();
-		for (final String prefix : transformableClassPrefix) {
-			final ClassLoader classLoader = ClassLoader.getSystemClassLoader();
-			final Package definedPackage = classLoader.getDefinedPackage(prefix);
-			if (definedPackage != null) {
-				// Transform all classes for this package
-				// TODO not implemented yet
-				throw new UnsupportedOperationException(definedPackage.toString());
-			} else {
-				// Not a package. Check if it's a class.
-				try {
-					classes.add(Class.forName(prefix));
-				} catch (final ClassNotFoundException e) {
-					LOGGER.warning(prefix + " is not a known class, ignoring");
-				}
+		for (final String prefix : classesToPreTransform) {
+			try {
+				classes.add(Class.forName(prefix));
+			} catch (final ClassNotFoundException e) {
+				LOGGER.warning(prefix + " is not a known class, it will no be pre-transformed");
 			}
 		}
 
 		if (!classes.isEmpty()) {
-			/*
-			 * Force transformation.
-			 */
+			final ClassFileTransformer transformer = Transformers.dummyTransformer(classesToPreTransform::contains);
 			instrumentation.addTransformer(transformer, true);
 			try {
 				LOGGER.info("Pre-transforming " + classes);

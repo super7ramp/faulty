@@ -17,8 +17,8 @@ final class DummyTransformer extends AbstractTransformer {
 	 * @param transformableClassPredicate predicate to determine if a class shall be
 	 *                                    transformed or excluded
 	 */
-	DummyTransformer(final Predicate<String> transformableClassPredicate) {
-		super(transformableClassPredicate);
+	DummyTransformer(final int api, final Predicate<String> transformableClassPredicate) {
+		super(api, transformableClassPredicate);
 	}
 
 	@Override

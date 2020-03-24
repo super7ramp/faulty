@@ -14,9 +14,9 @@ abstract class AbstractMethodInClassTransformer extends AbstractTransformer {
 
 	private final Predicate<String> transformableMethodPredicate;
 
-	public AbstractMethodInClassTransformer(final Predicate<String> transformableClassPredicate,
+	public AbstractMethodInClassTransformer(final int api, final Predicate<String> transformableClassPredicate,
 			final Predicate<String> aTransformableMethodPredicate) {
-		super(transformableClassPredicate);
+		super(api, transformableClassPredicate);
 		transformableMethodPredicate = aTransformableMethodPredicate;
 	}
 

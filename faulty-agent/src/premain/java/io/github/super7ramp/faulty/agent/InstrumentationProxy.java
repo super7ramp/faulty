@@ -6,7 +6,6 @@ import java.lang.instrument.UnmodifiableClassException;
 import java.util.HashSet;
 import java.util.Set;
 
-import io.github.super7ramp.faulty.agent.config.AgentConfiguration;
 import io.github.super7ramp.faulty.api.AgentNotLaunchedException;
 import io.github.super7ramp.faulty.api.InjectionFailureException;
 
@@ -20,9 +19,6 @@ final class InstrumentationProxy {
 
 	/** The instrumentation access. */
 	private Instrumentation instrumentation;
-
-	/** Agent configuration. */
-	private AgentConfiguration conf;
 
 	/**
 	 * Instance holder (singleton).
@@ -50,12 +46,11 @@ final class InstrumentationProxy {
 	 *
 	 * @param anInstrumentation the instance to inject
 	 */
-	void setInstrumentation(final Instrumentation anInstrumentation, final AgentConfiguration config) {
+	void attach(final Instrumentation anInstrumentation) {
 		if (instrumentation != null) {
 			throw new IllegalStateException("Instrumentation already set");
 		}
 		instrumentation = anInstrumentation;
-		conf = config;
 	}
 
 	void addTransformer(final ClassFileTransformer transformer) throws AgentNotLaunchedException {
@@ -95,13 +90,6 @@ final class InstrumentationProxy {
 	private void checkClassesAreRetransformable(final Class<?>[] classes) throws InjectionFailureException {
 		if (!instrumentation.isRetransformClassesSupported()) {
 			throw new InjectionFailureException("Re-transformation not supported.");
-		}
-		for (final Class<?> clazz : classes) {
-			final String className = clazz.getName();
-			if (conf.transformableClassPrefix().stream().filter(className::startsWith).findAny().isEmpty()) {
-				throw new InjectionFailureException(
-						"Class " + className + " not configured as transformable. Check your agent configuration.");
-			}
 		}
 	}
 

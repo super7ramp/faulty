@@ -19,9 +19,9 @@ final class InterruptibleInfiniteLoopTransformer extends AbstractMethodInClassTr
 	 *
 	 * @param transformableClassPredicate
 	 */
-	InterruptibleInfiniteLoopTransformer(final Predicate<String> transformableClassPredicate,
+	InterruptibleInfiniteLoopTransformer(final int api, final Predicate<String> transformableClassPredicate,
 			final Predicate<String> transformableMethodPredicate) {
-		super(transformableClassPredicate, transformableMethodPredicate);
+		super(api, transformableClassPredicate, transformableMethodPredicate);
 	}
 
 	@Override

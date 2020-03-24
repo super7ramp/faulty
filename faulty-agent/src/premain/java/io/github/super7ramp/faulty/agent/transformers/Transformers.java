@@ -8,6 +8,10 @@ import java.util.function.Predicate;
  */
 public final class Transformers {
 
+	/** ASM API version. */
+	// TODO read from conf
+	private static final int API = 7;
+
 	/**
 	 * Constructor.
 	 */
@@ -23,7 +27,7 @@ public final class Transformers {
 	 * @return the transformer
 	 */
 	public static final ClassFileTransformer dummyTransformer(final Predicate<String> transformableClassPredicate) {
-		return new DummyTransformer(transformableClassPredicate);
+		return new DummyTransformer(API, transformableClassPredicate);
 	}
 
 	/**
@@ -36,7 +40,7 @@ public final class Transformers {
 	 */
 	public static final ClassFileTransformer infiniteLoopTransformer(
 			final Predicate<String> transformableClassPredicate, final Predicate<String> transformableMethodPredicate) {
-		return new InfiniteLoopTransformer(transformableClassPredicate, transformableMethodPredicate);
+		return new InfiniteLoopTransformer(API, transformableClassPredicate, transformableMethodPredicate);
 	}
 
 	/**
@@ -50,7 +54,7 @@ public final class Transformers {
 	 */
 	public static final ClassFileTransformer interruptibleInfiniteLoopTransformer(
 			final Predicate<String> transformableClassPredicate, final Predicate<String> transformableMethodPredicate) {
-		return new InterruptibleInfiniteLoopTransformer(transformableClassPredicate, transformableMethodPredicate);
+		return new InterruptibleInfiniteLoopTransformer(API, transformableClassPredicate, transformableMethodPredicate);
 	}
 
 	/**
@@ -63,7 +67,7 @@ public final class Transformers {
 	 */
 	public static final ClassFileTransformer runtimeExceptionTransformer(
 			final Predicate<String> transformableClassPredicate, final Predicate<String> transformableMethodPredicate) {
-		return new RuntimeExceptionTransformer(transformableClassPredicate, transformableMethodPredicate);
+		return new RuntimeExceptionTransformer(API, transformableClassPredicate, transformableMethodPredicate);
 	}
 
 }

@@ -20,9 +20,9 @@ final class RuntimeExceptionTransformer extends AbstractMethodInClassTransformer
 	 * @param transformableClassPredicate
 	 * @param transformableMethodPredicate
 	 */
-	public RuntimeExceptionTransformer(final Predicate<String> transformableClassPredicate,
+	public RuntimeExceptionTransformer(final int api, final Predicate<String> transformableClassPredicate,
 			final Predicate<String> transformableMethodPredicate) {
-		super(transformableClassPredicate, transformableMethodPredicate);
+		super(api, transformableClassPredicate, transformableMethodPredicate);
 	}
 
 	@Override

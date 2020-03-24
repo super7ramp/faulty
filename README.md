@@ -1,19 +1,20 @@
 faulty: A Java agent which inserts faults
 -----------------------------------------
 
-**faulty** is an experimental light [ASM](https://asm.ow2.io/)-based [instrumentation agent](https://docs.oracle.com/en/java/javase/14/docs/api/java.instrument/java/lang/instrument/package-summary.html) which allows to inject faults in Java application classes.
+**faulty** is an experimental, light, [ASM](https://asm.ow2.io/)-based [instrumentation agent](https://docs.oracle.com/en/java/javase/14/docs/api/java.instrument/java/lang/instrument/package-summary.html) which allows to inject faults in Java applications.
 
 ## Motivations
 
-As often, for bad reasons:
 * Test response of a complex application in face of bugs occurring in specific classes/packages, in particular in reportedly bad-quality/legacy/problem-nest/third-party code.
 * Test this behavior at system level - meaning at app boundaries - instead of application level - app components boundaries
 
-In other words, it allows to perform verifications for critical situations normally impossible to trigger at a high black-box level; So more for reassuring people than for rationale reason…
+In other words, it allows to perform verifications for situations normally impossible to trigger at a high black-box level. The dream of every ~~tortured people~~ validators.
 
 ## Get started
 
-### Inject bugs statically for a demonstration
+### Inject bugs statically
+
+E.g. for a demonstration.
 
 1. Retrieve the agent jar from XXX or build it with:
 
@@ -35,9 +36,11 @@ java -jar myApp.jar -javaagent:faulty-agent.jar=\
 
 See XXX for the the list of injectable bugs.
 
-### Inject bugs dynamically for automated high level tests
+### Inject bugs dynamically
 
-It supposes you have already some kind of framework to do perform your high-level tests.
+E.g. for automated high level tests.
+
+It supposes you have already some kind of framework to perform your high-level tests.
 
 1. Retrieve the `faulty-api` and `faulty-agent` jars from XXX or build them with:
 
@@ -75,11 +78,34 @@ public void test() {
      */
 
 }
+```
+
+## Known issues
+
+Injecting bug dynamically may fail with this error:
 
 ```
+java.lang.UnsupportedOperationException: class redefinition failed: attempted to change the schema (add/remove fields)
+```
+
+This is not supposed to happen: faulty only does very limited modifications, nothing supposed to utterly change class definition, in particular no class field added nor removed.
+
+Maybe ASM produces a byte-code too different from what the compiler produced and thus from what the JVM initially read - this issue only occurs when the class has already been loaded by the JVM - preventing the JVM to do the re-transformation.
+
+Or most probably there is something I don't understand, as usual.
+
+Anyway, a workaround is to "pre-transform" the classes statically with the `preTransform` parameter:
+
+```
+java -jar myApp.jar -javaagent:faulty-agent.jar=\
+    preTransform=com.example.myapp.ClassA,\
+    preTransform=com.example.myapp.ClassB
+```
+
+You have to mention precisely the classes that may be transformed later dynamically (no package name allowed).
 
 ## TODO
 
 * More bugs (yes).
-* Check for retransformation issues.
-* Check if services work remotely: App launched in a JVM with agent, test framework in another JVM, attach to the app JVM, call faulty services.
+* Check retransformation issues.
+* Check if services work remotely: App launched in a JVM with agent, test framework in another JVM, attach to the app JVM, call faulty services. 

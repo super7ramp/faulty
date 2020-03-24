@@ -2,6 +2,7 @@ dependencies {
     testCompile project(':faulty-api')
     testCompile libraries.junit
     testRuntime libraries.asm
+    testRuntime libraries.asmUtil
 }
 
 test.dependsOn project(':faulty-agent').tasks.jar

@@ -16,9 +16,9 @@ final class InfiniteLoopTransformer extends AbstractMethodInClassTransformer {
 	 *
 	 * @param transformableClassPredicate
 	 */
-	InfiniteLoopTransformer(final Predicate<String> transformableClassPredicate,
+	InfiniteLoopTransformer(final int api, final Predicate<String> transformableClassPredicate,
 			final Predicate<String> transformableMethodPredicate) {
-		super(transformableClassPredicate, transformableMethodPredicate);
+		super(api, transformableClassPredicate, transformableMethodPredicate);
 	}
 
 	@Override

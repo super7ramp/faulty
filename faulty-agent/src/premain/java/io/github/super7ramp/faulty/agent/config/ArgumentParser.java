@@ -44,7 +44,7 @@ public final class ArgumentParser {
 				final String key = keyValue[0];
 				final String value = keyValue[1];
 				switch (key) {
-				case "include":
+				case "preTransform":
 					transformableClassPrefixes.add(value);
 					break;
 				case "api":
