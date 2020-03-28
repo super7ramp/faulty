@@ -1,14 +1,14 @@
 faulty: A Java agent which inserts faults
 -----------------------------------------
 
-**faulty** is an experimental, light, [ASM](https://asm.ow2.io/)-based [instrumentation agent](https://docs.oracle.com/en/java/javase/14/docs/api/java.instrument/java/lang/instrument/package-summary.html) which allows to inject faults in Java applications.
+**faulty** is a [Java instrumentation agent](https://docs.oracle.com/en/java/javase/14/docs/api/java.instrument/java/lang/instrument/package-summary.html) which allows to inject faults in Java applications.
 
 ## Motivations
 
 * Test response of a complex application in face of bugs occurring in specific classes/packages, in particular in reportedly bad-quality/legacy/problem-nest/third-party code.
 * Test this behavior at system level - meaning at app boundaries - instead of application level - app components boundaries
 
-In other words, it allows to perform verifications for situations normally impossible to trigger at a high black-box level. The dream of every ~~tortured people~~ validators.
+In other words, it allows to perform verifications for situations normally impossible to trigger at a high black-box level.
 
 ## Get started
 
@@ -108,4 +108,5 @@ You have to mention precisely the classes that may be transformed later dynamica
 
 * More bugs (yes).
 * Check retransformation issues.
-* Check if services work remotely: App launched in a JVM with agent, test framework in another JVM, attach to the app JVM, call faulty services. 
+* Check if services work remotely: App launched in a JVM with agent, test framework in another JVM, attach to the app JVM, call faulty services.
+* Create a gradle plugin to configure easily the agent (like jacoco agent).
