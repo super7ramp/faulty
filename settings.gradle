@@ -1,4 +1,5 @@
 rootProject.name = 'faulty'
 include 'faulty-agent'
 include 'faulty-api'
+include 'faulty-gradle'
 include 'faulty-tests'

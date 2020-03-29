@@ -1,14 +1,13 @@
-faulty: A Java agent which inserts faults
------------------------------------------
+faulty: Fantastic Agent Utility Leveraging Total Yoloness
+---------------------------------------------------------
 
 **faulty** is a [Java instrumentation agent](https://docs.oracle.com/en/java/javase/14/docs/api/java.instrument/java/lang/instrument/package-summary.html) which allows to inject faults in Java applications.
 
 ## Motivations
 
-* Test response of a complex application in face of bugs occurring in specific classes/packages, in particular in reportedly bad-quality/legacy/problem-nest/third-party code.
-* Test this behavior at system level - meaning at app boundaries - instead of application level - app components boundaries
-
-In other words, it allows to perform verifications for situations normally impossible to trigger at a high black-box level.
+Provide a way to test resilience of a complex application:
+- At application boundaries
+- By injecting bugs in specific classes/packages, in particular in reportedly bad-quality/legacy/problem-nest/third-party code.
 
 ## Get started
 
@@ -48,7 +47,7 @@ It supposes you have already some kind of framework to perform your high-level t
 gradle faulty-api:jar faulty-agent:jar
 ```
 
-2. Put them in the classpath of your test configuration, as wall as the `-javaagent:faulty-agent.jar` JVM argument.
+2. Put them in the classpath of your test configuration, as wall as the `-javaagent:faulty-agent.jar` JVM argument. Alternatively, if you use gradle, you can let the [faulty gradle plugin](faulty-gradle/README.md) do the job
 
 3. Test it.
 
@@ -106,7 +105,13 @@ You have to mention precisely the classes that may be transformed later dynamica
 
 ## TODO
 
-* More bugs (yes).
+### Features
+
+* More bugs. Yes.
+* Capability to revert bugs.
+* Create a gradle plugin to configure easily the agent (like jacoco agent): In progress.
+
+### Correctness
+
 * Check retransformation issues.
 * Check if services work remotely: App launched in a JVM with agent, test framework in another JVM, attach to the app JVM, call faulty services.
-* Create a gradle plugin to configure easily the agent (like jacoco agent).

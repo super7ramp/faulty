@@ -2,8 +2,19 @@ apply from: 'libraries.gradle'
 
 subprojects {
     apply plugin: 'java'
+    apply plugin: 'maven-publish'
     
     repositories {
         mavenCentral()
+    }
+    
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                groupId = "${groupId}"
+                version = "${version}"
+                from components.java
+            }
+        }
     }
 }

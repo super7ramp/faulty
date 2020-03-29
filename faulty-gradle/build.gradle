@@ -1,0 +1,16 @@
+plugins {
+    id 'java-gradle-plugin'
+}
+
+gradlePlugin {
+    plugins {
+        faultyPlugin {
+            id = "${groupId}.faulty-plugin"
+            implementationClass = 'io.github.super7ramp.faulty.FaultyPlugin'
+        }
+    }
+}
+
+dependencies {
+    testCompile libraries.junit
+}
