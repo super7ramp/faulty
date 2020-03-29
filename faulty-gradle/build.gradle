@@ -20,6 +20,6 @@ publishing {
 }
 
 dependencies {
-    testCompile libraries.junit
-    testCompile project(':faulty-api')
+    testImplementation libraries.junit
+    testImplementation project(':faulty-api')
 }

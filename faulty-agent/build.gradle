@@ -1,8 +1,8 @@
 dependencies {
-	compile libraries.asm
-	compile libraries.asmUtil
-	compile project(':faulty-api')
-	testCompile libraries.junit
+	implementation libraries.asm
+	implementation libraries.asmUtil
+	implementation project(':faulty-api')
+	testImplementation libraries.junit
 }
 
 jar {
