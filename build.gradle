@@ -4,6 +4,8 @@ subprojects {
     apply plugin: 'java'
     apply plugin: 'maven-publish'
     
+    group 'io.github.super7ramp.faulty'
+    
     repositories {
         mavenCentral()
     }

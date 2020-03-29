@@ -5,7 +5,7 @@ plugins {
 gradlePlugin {
     plugins {
         faultyPlugin {
-            id = "${groupId}.faulty-plugin"
+            id = "${group}.faulty-plugin"
             displayName = 'faulty agent plugin'
             description = 'Allows to run any Java task with the faulty agent'
             implementationClass = 'io.github.super7ramp.faulty.FaultyPlugin'
@@ -14,11 +14,8 @@ gradlePlugin {
 }
 
 publishing {
-    publications {
-        pluginMaven(MavenPublication) {
-            groupId = 'io.github.super7ramp.faulty'
-            version = "${version}"
-        }
+    repositories {
+        mavenLocal()
     }
 }
 

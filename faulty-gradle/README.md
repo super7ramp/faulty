@@ -46,3 +46,9 @@ test {
     }
 }
 ```
+
+## TODO
+
+* publish
+* support java application plugin 
+* see if it's possible to actually test it
