@@ -3,31 +3,35 @@ package io.github.super7ramp.faulty;
 import java.util.Collection;
 import java.util.HashSet;
 
+import org.gradle.api.tasks.Input;
+
 /**
  * Task extension to use faulty.
- * <p>
- * Fields are injected and need to be public.
  */
 public class FaultyTaskExtension {
 
 	/** The classes that should be pre-transformed. */
-	public Collection<String> preTransform;
+	private final Collection<String> preTransform;
 
 	/** Whether faulty should be enabled, default is false. */
-	public boolean enabled;
+	private boolean enabled;
 
 	/**
 	 * Constructor.
+	 * 
+	 * @param agentConfiguration the agent configuration
 	 */
 	public FaultyTaskExtension() {
 		preTransform = new HashSet<>();
 	}
 
-	Iterable<String> preTransform() {
+	@Input
+	public Iterable<String> preTransform() {
 		return preTransform;
 	}
 
-	boolean isEnabled() {
+	@Input
+	public boolean isEnabled() {
 		return enabled;
 	}
 

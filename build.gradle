@@ -11,7 +11,7 @@ subprojects {
     publishing {
         publications {
             maven(MavenPublication) {
-                groupId = "${groupId}"
+                groupId = 'io.github.super7ramp.faulty'
                 version = "${version}"
                 from components.java
             }

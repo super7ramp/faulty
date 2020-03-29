@@ -4,9 +4,11 @@ import java.util.Iterator;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.tasks.JavaExec;
+import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.testing.Test;
 import org.gradle.process.JavaForkOptions;
 
@@ -31,57 +33,50 @@ public final class FaultyPlugin implements Plugin<Project> {
 	public final void apply(final Project project) {
 
 		/*
-		 * Create a dedicated configuration for faulty agent jar.
+		 * Add the faulty-agent to dependencies.
 		 */
-		final Configuration config = project.getConfigurations().create("faultyAgent")
-				.setDescription("Faulty agent configuration").setVisible(false);
-
-		config.defaultDependencies(dependencySet -> {
+		final Configuration config = project.getConfigurations().create("faultyAgent");
+		config.setDescription("Faulty agent configuration");
+		config.setVisible(false);
+		config.defaultDependencies(deps -> {
 			final DependencyHandler dependencyHandler = project.getDependencies();
 			// TODO pass this as parameter/read it from somewhere
-			dependencySet.add(dependencyHandler.create("io.github.super7ramp:faulty-agent:1.0"));
+			deps.add(dependencyHandler.create("io.github.super7ramp:faulty-agent"));
+			deps.add(dependencyHandler.create("io.github.super7ramp:faulty-api"));
 		});
 
 		/*
-		 * Allow every JavaExec tasks to be extended with a faulty extension.
+		 * Extend every JavaExec and Test tasks with the faulty extension.
 		 */
-		project.getTasks().withType(JavaExec.class).configureEach(javaExec -> {
-			final FaultyTaskExtension faultyParameters = javaExec.getExtensions().create("faulty",
-					FaultyTaskExtension.class);
-			addJvmArguments(javaExec, faultyParameters, config);
-		});
-
-		/*
-		 * Same thing with test tasks.
-		 */
-		project.getTasks().withType(Test.class).configureEach(testExec -> {
-			final FaultyTaskExtension faultyParameters = testExec.getExtensions().create("faulty",
-					FaultyTaskExtension.class);
-			addJvmArguments(testExec, faultyParameters, config);
-		});
+		final TaskContainer tasks = project.getTasks();
+		tasks.withType(JavaExec.class).configureEach(javaExec -> configure(config, javaExec));
+		tasks.withType(Test.class).configureEach(testExec -> configure(config, testExec));
 
 	}
 
 	/**
-	 * Add the right <code>-javaagent:</code> stuff to JVM arguments so that the
-	 * task can be run with faulty agent.
+	 * Configure the given task to apply the faulty task extension.
 	 *
-	 * @param javaTaskOptions    the java task options
-	 * @param faultyParameters  the faulty task extension parameters
-	 * @param faultyAgentConfig the agent dedicated configuration, to get the path
-	 *                          to the agent jar
+	 * @param <T>         type of the task
+	 * @param agentConfig the agent configuration
+	 * @param javaTask    the task
 	 */
-	private void addJvmArguments(final JavaForkOptions javaTaskOptions, final FaultyTaskExtension faultyParameters,
-			final Configuration faultyAgentConfig) {
+	private <T extends Task & JavaForkOptions> void configure(final Configuration agentConfig, final T javaTask) {
 
-		if (!faultyParameters.isEnabled()) {
-			return;
-		}
+		final FaultyTaskExtension faultyParameters = javaTask.getExtensions().create("faulty",
+				FaultyTaskExtension.class);
+
+//		if (!faultyParameters.isEnabled()) {
+//			return;
+//		}
 
 		final StringBuilder javaAgentArgs = new StringBuilder("-javaagent:");
-		javaAgentArgs.append(faultyAgentConfig.getAsPath());
+		javaAgentArgs.append(agentConfig.getAsPath());
+
 		if (faultyParameters.hasArguments()) {
 			javaAgentArgs.append("=");
+
+			// preTransform
 			final Iterator<String> classNameIterator = faultyParameters.preTransform().iterator();
 			while (classNameIterator.hasNext()) {
 				javaAgentArgs.append("preTransform=").append(classNameIterator.next());
@@ -89,10 +84,11 @@ public final class FaultyPlugin implements Plugin<Project> {
 					javaAgentArgs.append(",");
 				}
 			}
-			// TODO add static bugs
+
+			// TODO static bugs
 		}
 
-		javaTaskOptions.getJvmArgs().add(javaAgentArgs.toString());
+		javaTask.getJvmArgs().add(javaAgentArgs.toString());
 	}
 
 }
