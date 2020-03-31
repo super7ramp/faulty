@@ -41,8 +41,8 @@ public final class FaultyPlugin implements Plugin<Project> {
 		config.defaultDependencies(deps -> {
 			final DependencyHandler dependencyHandler = project.getDependencies();
 			// TODO pass this as parameter/read it from somewhere
-			deps.add(dependencyHandler.create("io.github.super7ramp:faulty-agent"));
-			deps.add(dependencyHandler.create("io.github.super7ramp:faulty-api"));
+			deps.add(dependencyHandler.create("io.github.super7ramp.faulty:faulty-agent:1.0-SNAPSHOT"));
+			deps.add(dependencyHandler.create("io.github.super7ramp.faulty:faulty-api:1.0-SNAPSHOT"));
 		});
 
 		/*
