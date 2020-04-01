@@ -12,11 +12,37 @@ import io.github.super7ramp.faulty.agent.transformers.visitors.MethodInClassVisi
  */
 abstract class AbstractMethodInClassTransformer extends AbstractTransformer {
 
+	/** Predicate to determine if method shall be transformed or excluded. */
 	private final Predicate<String> transformableMethodPredicate;
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param api                           the ASM API version
+	 * @param transformableClassPredicate   predicate to determine if a class shall
+	 *                                      be transformed or excluded
+	 * @param aTransformableMethodPredicate predicate to determine if method shall
+	 *                                      be transformed or excluded
+	 */
 	public AbstractMethodInClassTransformer(final int api, final Predicate<String> transformableClassPredicate,
 			final Predicate<String> aTransformableMethodPredicate) {
 		super(api, transformableClassPredicate);
+		transformableMethodPredicate = aTransformableMethodPredicate;
+	}
+
+	/**
+	 * Constructor with custom {@link RollbackTransformer}
+	 * 
+	 * @param api                           the ASM API version
+	 * @param transformableClassPredicate   predicate to determine if a class shall
+	 *                                      be transformed or excluded
+	 * @param aTransformableMethodPredicate predicate to determine if method shall
+	 *                                      be transformed or excluded
+	 * @param rollbackTransformer           a custom {@link RollbackTransformer}
+	 */
+	public AbstractMethodInClassTransformer(final int api, final Predicate<String> transformableClassPredicate,
+			final Predicate<String> aTransformableMethodPredicate, final RollbackTransformer rollbackTransformer) {
+		super(api, transformableClassPredicate, rollbackTransformer);
 		transformableMethodPredicate = aTransformableMethodPredicate;
 	}
 

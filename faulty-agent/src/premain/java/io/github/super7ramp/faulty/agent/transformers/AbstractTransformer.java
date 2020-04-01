@@ -20,50 +20,11 @@ import org.objectweb.asm.util.TraceClassVisitor;
  */
 abstract class AbstractTransformer implements RevertableClassFileTransformer {
 
-	/**
-	 * A {@link ClassFileTransformer} that applies the given buffer.
-	 */
-	private static class RevertTransformer implements ClassFileTransformer {
-
-		/** The original class file buffer. */
-		private byte[] originalClassFileBuffer;
-
-		/**
-		 * Constructor.
-		 */
-		public RevertTransformer() {
-			originalClassFileBuffer = null;
-		}
-
-		@Override
-		public byte[] transform(final ClassLoader loader, final String className, final Class<?> classBeingRedefined,
-				final ProtectionDomain protectionDomain, final byte[] classfileBuffer) {
-			/*
-			 * It's fine if buffer is null, it means that no transformation will be applied
-			 * an that's what we want.
-			 */
-			if (originalClassFileBuffer != null) {
-				LOGGER.info("Restoring original code for " + className);
-			}
-			return originalClassFileBuffer;
-		}
-
-		/**
-		 * Set the {@link #originalClassFileBuffer}.
-		 * 
-		 * @param buffer the class file buffer to set
-		 */
-		public void setOriginalClassFileBuffer(final byte[] buffer) {
-			originalClassFileBuffer = buffer;
-		}
-
-	}
+	/** Logger. **/
+	private static final Logger LOGGER = Logger.getLogger(AbstractTransformer.class.getName());
 
 	/** No flag. */
 	private static final int NO_FLAG = 0;
-
-	/** Logger. **/
-	private static final Logger LOGGER = Logger.getLogger(AbstractTransformer.class.getName());
 
 	/** The ASM API version to use. */
 	private final int api;
@@ -72,7 +33,7 @@ abstract class AbstractTransformer implements RevertableClassFileTransformer {
 	private final Predicate<String> transformableClass;
 
 	/** Reverter. */
-	private final RevertTransformer reverter;
+	private final RollbackTransformer reverter;
 
 	/**
 	 * Constructor.
@@ -82,9 +43,22 @@ abstract class AbstractTransformer implements RevertableClassFileTransformer {
 	 *                                    transformed or excluded
 	 */
 	AbstractTransformer(final int apiVersion, final Predicate<String> transformableClassPredicate) {
+		this(apiVersion, transformableClassPredicate, new RollbackTransformer());
+	}
+
+	/**
+	 * Constructor with custom {@link RollbackTransformer}.
+	 * 
+	 * @param apiVersion                  the ASM API version to use
+	 * @param transformableClassPredicate predicate to determine if a class shall be
+	 *                                    transformed or excluded
+	 * @param rollbackTransformer         a custom {@link RollbackTransformer}
+	 */
+	public AbstractTransformer(final int apiVersion, final Predicate<String> transformableClassPredicate,
+			final RollbackTransformer rollbackTransformer) {
 		transformableClass = transformableClassPredicate;
 		api = intToOpCode(apiVersion);
-		reverter = new RevertTransformer();
+		reverter = rollbackTransformer;
 	}
 
 	/**
