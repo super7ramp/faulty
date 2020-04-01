@@ -26,7 +26,8 @@ public final class Transformers {
 	 *                                    be transformed
 	 * @return the transformer
 	 */
-	public static final ClassFileTransformer dummyTransformer(final Predicate<String> transformableClassPredicate) {
+	public static final RevertableClassFileTransformer dummyTransformer(
+			final Predicate<String> transformableClassPredicate) {
 		return new DummyTransformer(API, transformableClassPredicate);
 	}
 
@@ -38,7 +39,7 @@ public final class Transformers {
 	 * @param transformableMethodPredicate the method name matching predicate
 	 * @return the transformer
 	 */
-	public static final ClassFileTransformer infiniteLoopTransformer(
+	public static final RevertableClassFileTransformer infiniteLoopTransformer(
 			final Predicate<String> transformableClassPredicate, final Predicate<String> transformableMethodPredicate) {
 		return new InfiniteLoopTransformer(API, transformableClassPredicate, transformableMethodPredicate);
 	}
@@ -52,7 +53,7 @@ public final class Transformers {
 	 * @param transformableMethodPredicate the method name matching predicate
 	 * @return the transformer
 	 */
-	public static final ClassFileTransformer interruptibleInfiniteLoopTransformer(
+	public static final RevertableClassFileTransformer interruptibleInfiniteLoopTransformer(
 			final Predicate<String> transformableClassPredicate, final Predicate<String> transformableMethodPredicate) {
 		return new InterruptibleInfiniteLoopTransformer(API, transformableClassPredicate, transformableMethodPredicate);
 	}
@@ -65,7 +66,7 @@ public final class Transformers {
 	 * @param transformableMethodPredicate the method name matching predicate
 	 * @return the transformer
 	 */
-	public static final ClassFileTransformer runtimeExceptionTransformer(
+	public static final RevertableClassFileTransformer runtimeExceptionTransformer(
 			final Predicate<String> transformableClassPredicate, final Predicate<String> transformableMethodPredicate) {
 		return new RuntimeExceptionTransformer(API, transformableClassPredicate, transformableMethodPredicate);
 	}

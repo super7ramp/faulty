@@ -6,7 +6,7 @@ import org.objectweb.asm.Opcodes;
 import io.github.super7ramp.faulty.api.InjectedRuntimeException;
 
 /**
- *
+ * Transform method to throw an {@link InjectedRuntimeException}.
  */
 public final class RuntimeExceptionMethodVisitor extends MethodVisitor {
 

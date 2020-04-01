@@ -18,7 +18,46 @@ import org.objectweb.asm.util.TraceClassVisitor;
 /**
  * Base class for {@link ClassFileTransformer} implementations.
  */
-abstract class AbstractTransformer implements ClassFileTransformer {
+abstract class AbstractTransformer implements RevertableClassFileTransformer {
+
+	/**
+	 * A {@link ClassFileTransformer} that applies the given buffer.
+	 */
+	private static class RevertTransformer implements ClassFileTransformer {
+
+		/** The original class file buffer. */
+		private byte[] originalClassFileBuffer;
+
+		/**
+		 * Constructor.
+		 */
+		public RevertTransformer() {
+			originalClassFileBuffer = null;
+		}
+
+		@Override
+		public byte[] transform(final ClassLoader loader, final String className, final Class<?> classBeingRedefined,
+				final ProtectionDomain protectionDomain, final byte[] classfileBuffer) {
+			/*
+			 * It's fine if buffer is null, it means that no transformation will be applied
+			 * an that's what we want.
+			 */
+			if (originalClassFileBuffer != null) {
+				LOGGER.info("Restoring original code for " + className);
+			}
+			return originalClassFileBuffer;
+		}
+
+		/**
+		 * Set the {@link #originalClassFileBuffer}.
+		 * 
+		 * @param buffer the class file buffer to set
+		 */
+		public void setOriginalClassFileBuffer(final byte[] buffer) {
+			originalClassFileBuffer = buffer;
+		}
+
+	}
 
 	/** No flag. */
 	private static final int NO_FLAG = 0;
@@ -32,6 +71,9 @@ abstract class AbstractTransformer implements ClassFileTransformer {
 	/** Filter on class name. */
 	private final Predicate<String> transformableClass;
 
+	/** Reverter. */
+	private final RevertTransformer reverter;
+
 	/**
 	 * Constructor.
 	 *
@@ -42,6 +84,7 @@ abstract class AbstractTransformer implements ClassFileTransformer {
 	AbstractTransformer(final int apiVersion, final Predicate<String> transformableClassPredicate) {
 		transformableClass = transformableClassPredicate;
 		api = intToOpCode(apiVersion);
+		reverter = new RevertTransformer();
 	}
 
 	/**
@@ -67,10 +110,30 @@ abstract class AbstractTransformer implements ClassFileTransformer {
 	public final byte[] transform(final ClassLoader loader, final String className, final Class<?> classBeingRedefined,
 			final ProtectionDomain protectionDomain, final byte[] classfileBuffer) throws IllegalClassFormatException {
 
-		if (transformableClass.negate().test(className.replace('/', '.'))) {
-			return classfileBuffer;
+		final byte[] transformedClassFileBuffer = transform(className);
+		if (transformedClassFileBuffer != null) {
+			reverter.setOriginalClassFileBuffer(classfileBuffer);
 		}
+		return transformedClassFileBuffer;
 
+	}
+
+	@Override
+	public final ClassFileTransformer reverter() {
+		return reverter;
+	}
+
+	/**
+	 * Perform the transformation.
+	 * 
+	 * @param className the name of the class being transformed
+	 * @return the transformed class file buffer or <code>null</code> if no
+	 *         transformation performed
+	 */
+	private byte[] transform(final String className) {
+		if (transformableClass.negate().test(className.replace('/', '.'))) {
+			return null;
+		}
 		final String actualTransformerName = this.getClass().getSimpleName();
 		try {
 			LOGGER.info("Transforming " + className + " with " + actualTransformerName);
@@ -84,7 +147,7 @@ abstract class AbstractTransformer implements ClassFileTransformer {
 		} catch (final IOException e) {
 			LOGGER.log(Level.WARNING,
 					"Transformation failed for class " + className + " with transformer " + actualTransformerName, e);
-			return classfileBuffer;
+			return null;
 		}
 	}
 

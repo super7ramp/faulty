@@ -2,14 +2,17 @@ package io.github.super7ramp.faulty;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import io.github.super7ramp.faulty.api.AgentNotFoundException;
@@ -18,6 +21,7 @@ import io.github.super7ramp.faulty.api.FaultyFacade;
 import io.github.super7ramp.faulty.api.FaultyServices;
 import io.github.super7ramp.faulty.api.InfiniteLoopParameters;
 import io.github.super7ramp.faulty.api.InjectionFailureException;
+import io.github.super7ramp.faulty.api.RevertableBug;
 
 /**
  * Test on {@link FaultyServices#injectInfiniteLoop} service.
@@ -42,6 +46,9 @@ public class InfiniteLoopTest {
 		}
 	}
 
+	/**
+	 * This class is not supposed to produce an infinite loop. Let's change that.
+	 */
 	private static class InoffensiveInterruptibleTask implements Runnable {
 		@Override
 		public final void run() {
@@ -53,9 +60,12 @@ public class InfiniteLoopTest {
 		}
 	}
 
+	/**
+	 * This class is not supposed to produce an infinite loop. Let's change that.
+	 */
 	private static class Nothing {
 		public final void run() throws InterruptedException {
-			//
+			// Nothing.
 		}
 	}
 
@@ -73,6 +83,35 @@ public class InfiniteLoopTest {
 
 		/* The injected infinite loop shall make Future.get hang for more than 5s. */
 		Executors.newSingleThreadExecutor().submit(new InoffensiveTask()).get(5, TimeUnit.SECONDS);
+	}
+
+	/**
+	 * Test that loop bug can be reverted.
+	 */
+	@Test
+	@Ignore("obviously, hot swapping the code when it's being used (infinite loop) is trickier than I thought")
+	public void revertLoopInjection()
+			throws AgentNotLaunchedException, InjectionFailureException, InterruptedException, ExecutionException {
+
+		final InfiniteLoopParameters parameters = InfiniteLoopParameters.of(InoffensiveTask.class.getName(), "run",
+				false);
+		final RevertableBug injectedBug = services.injectInfiniteLoop(parameters);
+
+		/* The injected infinite loop shall make Future.get hang for more than 5s. */
+		final Future<?> taskCompletion = Executors.newSingleThreadExecutor().submit(new InoffensiveTask());
+		try {
+			taskCompletion.get(5, TimeUnit.SECONDS);
+		} catch (final TimeoutException e) {
+			// continue
+		}
+
+		injectedBug.revert();
+
+		try {
+			taskCompletion.get(5, TimeUnit.SECONDS);
+		} catch (final TimeoutException e) {
+			fail("Infinite loop obviously not reverted.");
+		}
 	}
 
 	/**
