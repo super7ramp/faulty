@@ -1,19 +1,28 @@
 package io.github.super7ramp.faulty.api;
 
 /**
- * 
+ * Infinite loop parameters.
  */
 public interface InfiniteLoopParameters {
 
-	/** Class name to apply infinite loop to. */
+	/** @return name of the class to apply the infinite loop to. */
 	String className();
 
-	/** Method name. */
+	/** @return name of the method to apply the infinite loop to. */
 	String methodName();
 
-	/** Whether a thread interruption will break the injected loop. */
+	/** @return whether a thread interruption will break the injected loop. */
 	boolean interruptible();
 
+	/**
+	 * Create an {@link InfiniteLoopParameters} from given argument.
+	 * 
+	 * @param className       name of the class to apply the infinite loop to
+	 * @param methodName      ame of the method to apply the infinite loop to
+	 * @param isInterruptible whether a thread interruption will break the injected
+	 *                        loop
+	 * @return the desired {@link InfiniteLoopParameters}
+	 */
 	static InfiniteLoopParameters of(final String className, final String methodName, final boolean isInterruptible) {
 		return new InfiniteLoopParameters() {
 			@Override

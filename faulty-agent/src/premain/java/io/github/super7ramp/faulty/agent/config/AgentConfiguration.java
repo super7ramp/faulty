@@ -2,6 +2,9 @@ package io.github.super7ramp.faulty.agent.config;
 
 import java.util.Collection;
 
+/**
+ * Agent configuration.
+ */
 public interface AgentConfiguration {
 
 	/**

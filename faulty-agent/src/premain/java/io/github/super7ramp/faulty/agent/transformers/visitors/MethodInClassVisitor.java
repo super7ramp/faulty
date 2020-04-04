@@ -26,6 +26,7 @@ public final class MethodInClassVisitor extends ClassVisitor {
 	 * @param api                          the ASM API version
 	 * @param classVisitor                 the visitor to delegate visit calls to
 	 * @param transformableMethodPredicate the filter on method name
+	 * @param aMethodVisitorFactory        method visitor factory
 	 */
 	public MethodInClassVisitor(final int api, final ClassVisitor classVisitor,
 			final Predicate<String> transformableMethodPredicate, final MethodVisitorFactory aMethodVisitorFactory) {
@@ -40,7 +41,7 @@ public final class MethodInClassVisitor extends ClassVisitor {
 		final MethodVisitor delegateMethodVisitor = super.visitMethod(access, name, descriptor, signature, exceptions);
 		LOGGER.info("Visiting method " + name);
 		if (transformableMethod.test(name)) {
-			return methodVisitorFactory.create(delegateMethodVisitor);
+			return methodVisitorFactory.create(delegateMethodVisitor, name);
 		}
 		return delegateMethodVisitor;
 	}

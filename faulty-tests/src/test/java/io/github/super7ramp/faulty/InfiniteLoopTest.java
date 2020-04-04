@@ -12,7 +12,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import io.github.super7ramp.faulty.api.AgentNotFoundException;
@@ -31,6 +30,11 @@ public class InfiniteLoopTest {
 	/** Services under tests. */
 	private FaultyServices services;
 
+	/**
+	 * Initialize services under test.
+	 *
+	 * @throws AgentNotFoundException should not happen
+	 */
 	@Before
 	public void before() throws AgentNotFoundException {
 		services = FaultyFacade.getServices();
@@ -72,6 +76,12 @@ public class InfiniteLoopTest {
 	/**
 	 * Test that an {@link InoffensiveTask} can loop one once an infinite loop is
 	 * injected in it.
+	 * 
+	 * @throws AgentNotLaunchedException should not happen
+	 * @throws InjectionFailureException should not happen
+	 * @throws InterruptedException      should not happen
+	 * @throws ExecutionException        should not happen
+	 * @throws TimeoutException          should not happen
 	 */
 	@Test(expected = TimeoutException.class)
 	public void loopInjection() throws AgentNotLaunchedException, InjectionFailureException, InterruptedException,
@@ -87,9 +97,13 @@ public class InfiniteLoopTest {
 
 	/**
 	 * Test that loop bug can be reverted.
+	 * 
+	 * @throws AgentNotLaunchedException should not happen
+	 * @throws InjectionFailureException should not happen
+	 * @throws InterruptedException      should not happen
+	 * @throws ExecutionException        should not happen
 	 */
 	@Test
-	@Ignore("obviously, hot swapping the code when it's being used (infinite loop) is trickier than I thought")
 	public void revertLoopInjection()
 			throws AgentNotLaunchedException, InjectionFailureException, InterruptedException, ExecutionException {
 
@@ -117,6 +131,10 @@ public class InfiniteLoopTest {
 	/**
 	 * Test that an {@link InoffensiveInterruptibleTask} can loop one once an
 	 * infinite loop is injected in it.
+	 * 
+	 * @throws AgentNotLaunchedException should not happen
+	 * @throws InjectionFailureException should not happen
+	 * @throws InterruptedException      should not happen
 	 */
 	@Test
 	public void interruptibleLoopInjection()

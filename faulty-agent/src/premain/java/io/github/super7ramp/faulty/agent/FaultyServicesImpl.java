@@ -60,6 +60,7 @@ public final class FaultyServicesImpl implements FaultyServices {
 	 * 
 	 * @param className   the name of the class to transform
 	 * @param transformer the transformation to apply
+	 * @return the injected bug
 	 * @throws AgentNotLaunchedException if agent is not launched
 	 * @throws InjectionFailureException if injection failed for the given class
 	 */

@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
 import io.github.super7ramp.faulty.api.InjectedInterruptedException;
 
@@ -27,8 +28,7 @@ public class InterruptibleInfiniteLoopMethodVisitor extends MethodVisitor {
 	private static final Logger LOGGER = Logger.getLogger(InterruptibleInfiniteLoopMethodVisitor.class.getName());
 
 	/** Interrupted exception name. */
-	private static final String INTERRUPTED_EXCEPTION_NAME = InjectedInterruptedException.class.getName().replace('.',
-			'/');
+	private static final String INTERRUPTED_EXCEPTION_NAME = Type.getInternalName(InjectedInterruptedException.class);
 
 	/**
 	 * Constructor.
@@ -48,16 +48,19 @@ public class InterruptibleInfiniteLoopMethodVisitor extends MethodVisitor {
 		final Label outsideLoopLabel = new Label();
 
 		visitLabel(loopLabel);
-		visitMethodInsn(Opcodes.INVOKESTATIC, Thread.class.getName().replace('.', '/'), "interrupted", "()Z", false);
+		visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(Thread.class), "interrupted",
+				Type.getMethodDescriptor(Type.BOOLEAN_TYPE), false);
 		visitJumpInsn(Opcodes.IFNE, outsideLoopLabel);
 		visitJumpInsn(Opcodes.GOTO, loopLabel);
 
 		visitLabel(outsideLoopLabel);
 		visitTypeInsn(Opcodes.NEW, INTERRUPTED_EXCEPTION_NAME);
 		visitInsn(Opcodes.DUP);
-		visitMethodInsn(Opcodes.INVOKESPECIAL, INTERRUPTED_EXCEPTION_NAME, "<init>", "()V", false);
+		visitMethodInsn(Opcodes.INVOKESPECIAL, INTERRUPTED_EXCEPTION_NAME, "<init>",
+				Type.getMethodDescriptor(Type.VOID_TYPE), false);
 		visitInsn(Opcodes.ATHROW);
 
-		visitEnd();
+		// Add the rest of the original code
+		mv.visitCode();
 	}
 }

@@ -29,6 +29,10 @@ public class RuntimeExceptionTest {
 
 	/**
 	 * Check that runtime exception injection works.
+	 * 
+	 * @throws AgentNotLaunchedException should not happen
+	 * @throws InjectionFailureException should not happen
+	 * @throws AgentNotFoundException    should not happen
 	 */
 	@Test(expected = InjectedRuntimeException.class)
 	public void injectRuntimeException()
@@ -43,6 +47,10 @@ public class RuntimeExceptionTest {
 
 	/**
 	 * Test that injected runtime exception cancellation works.
+	 * 
+	 * @throws AgentNotLaunchedException should not happen
+	 * @throws InjectionFailureException should not happen
+	 * @throws AgentNotFoundException    should not happen
 	 */
 	@Test
 	public void ejectRuntimeException()

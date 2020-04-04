@@ -15,6 +15,8 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.util.TraceClassVisitor;
 
+import io.github.super7ramp.faulty.agent.transformers.rollback.RollbackTransformer;
+
 /**
  * Base class for {@link ClassFileTransformer} implementations.
  */
@@ -32,20 +34,6 @@ abstract class AbstractTransformer implements RevertableClassFileTransformer {
 	/** Filter on class name. */
 	private final Predicate<String> transformableClass;
 
-	/** Reverter. */
-	private final RollbackTransformer reverter;
-
-	/**
-	 * Constructor.
-	 *
-	 * @param apiVersion                  the ASM API version to use
-	 * @param transformableClassPredicate predicate to determine if a class shall be
-	 *                                    transformed or excluded
-	 */
-	AbstractTransformer(final int apiVersion, final Predicate<String> transformableClassPredicate) {
-		this(apiVersion, transformableClassPredicate, new RollbackTransformer());
-	}
-
 	/**
 	 * Constructor with custom {@link RollbackTransformer}.
 	 * 
@@ -54,11 +42,9 @@ abstract class AbstractTransformer implements RevertableClassFileTransformer {
 	 *                                    transformed or excluded
 	 * @param rollbackTransformer         a custom {@link RollbackTransformer}
 	 */
-	public AbstractTransformer(final int apiVersion, final Predicate<String> transformableClassPredicate,
-			final RollbackTransformer rollbackTransformer) {
+	AbstractTransformer(final int apiVersion, final Predicate<String> transformableClassPredicate) {
 		transformableClass = transformableClassPredicate;
 		api = intToOpCode(apiVersion);
-		reverter = rollbackTransformer;
 	}
 
 	/**
@@ -86,7 +72,7 @@ abstract class AbstractTransformer implements RevertableClassFileTransformer {
 
 		final byte[] transformedClassFileBuffer = transform(className);
 		if (transformedClassFileBuffer != null) {
-			reverter.setOriginalClassFileBuffer(classfileBuffer);
+			rollbackTransformer().setOriginalClassFileBuffer(className, classfileBuffer);
 		}
 		return transformedClassFileBuffer;
 
@@ -94,7 +80,7 @@ abstract class AbstractTransformer implements RevertableClassFileTransformer {
 
 	@Override
 	public final ClassFileTransformer reverter() {
-		return reverter;
+		return rollbackTransformer();
 	}
 
 	/**
@@ -108,14 +94,16 @@ abstract class AbstractTransformer implements RevertableClassFileTransformer {
 		if (transformableClass.negate().test(className.replace('/', '.'))) {
 			return null;
 		}
-		final String actualTransformerName = this.getClass().getSimpleName();
+
+		final String actualTransformerName = getClass().getSimpleName();
+		LOGGER.info("Transforming " + className + " with " + actualTransformerName);
+
 		try {
-			LOGGER.info("Transforming " + className + " with " + actualTransformerName);
 			final ClassReader reader = new ClassReader(className);
 			final ClassWriter writer = new ClassWriter(reader, ClassWriter.COMPUTE_FRAMES);
 			final PrintWriter pw = new PrintWriter(System.out);
 			final ClassVisitor dumpVisitor = new TraceClassVisitor(writer, pw);
-			final ClassVisitor visitor = classVisitor(api, dumpVisitor);
+			final ClassVisitor visitor = classVisitor(api, dumpVisitor, className);
 			reader.accept(visitor, NO_FLAG);
 			return writer.toByteArray();
 		} catch (final IOException e) {
@@ -126,13 +114,20 @@ abstract class AbstractTransformer implements RevertableClassFileTransformer {
 	}
 
 	/**
+	 * @return {@link RollbackTransformer} implementation
+	 */
+	protected abstract RollbackTransformer rollbackTransformer();
+
+	/**
 	 * The method visitor the abstraction will call.
 	 *
-	 * @param api      the ASM API version
-	 * @param delegate the visitor to delegate visit calls to (ultimately, the class
-	 *                 writer)
+	 * @param api              the ASM API version
+	 * @param delegate         the visitor to delegate visit calls to (ultimately,
+	 *                         the class writer)
+	 * @param visitedClassName name of the visited class
 	 * @return the class visitor
 	 */
-	protected abstract ClassVisitor classVisitor(final int api, final ClassVisitor delegate);
+	protected abstract ClassVisitor classVisitor(final int api, final ClassVisitor delegate,
+			final String visitedClassName);
 
 }

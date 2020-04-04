@@ -5,12 +5,19 @@ package io.github.super7ramp.faulty.api;
  */
 public interface RuntimeExceptionParameters {
 
-	/** Class name to inject exception into. */
+	/** @return name of the class to apply the infinite loop to. */
 	String className();
 
-	/** Method name to inject exception into. */
+	/** @return name of the method to apply the infinite loop to. */
 	String methodName();
 
+	/**
+	 * Create an {@link RuntimeExceptionParameters} from given argument.
+	 * 
+	 * @param className  name of the class to apply the infinite loop to
+	 * @param methodName name of the method to apply the infinite loop to
+	 * @return the desired {@link RuntimeExceptionParameters}
+	 */
 	static RuntimeExceptionParameters of(final String className, final String methodName) {
 		return new RuntimeExceptionParameters() {
 			@Override

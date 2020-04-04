@@ -8,6 +8,7 @@ import org.junit.Test;
 /**
  * Tests for {@link ArgumentParser}.
  */
+@SuppressWarnings("javadoc")
 public class ArgumentParserTest {
 
 	@Test

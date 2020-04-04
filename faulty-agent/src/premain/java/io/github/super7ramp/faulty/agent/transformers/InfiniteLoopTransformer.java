@@ -4,6 +4,8 @@ import java.util.function.Predicate;
 
 import org.objectweb.asm.MethodVisitor;
 
+import io.github.super7ramp.faulty.agent.transformers.rollback.InfiniteLoopRollbackTransformer;
+import io.github.super7ramp.faulty.agent.transformers.rollback.RollbackTransformer;
 import io.github.super7ramp.faulty.agent.transformers.visitors.InfiniteLoopMethodVisitor;
 
 /**
@@ -11,46 +13,34 @@ import io.github.super7ramp.faulty.agent.transformers.visitors.InfiniteLoopMetho
  */
 final class InfiniteLoopTransformer extends AbstractMethodInClassTransformer {
 
-	/**
-	 * A custom {@link RollbackTransformer} that will un-block the infinite loop as
-	 * {@link #preTransform()} step.
-	 * <p>
-	 * If this step is not performed then infinite loop will keep going since that,
-	 * upon transformation, active frames continue to run the bytecode of the
-	 * original method (i.e. here the code with an infinite loop): Only new
-	 * invocation would be loop-free.
-	 *
-	 * @see java.lang.instrument.Instrumentation#retransformClasses(Class...)
-	 *      Instrumentation#retransformClasses(Class...)
-	 */
-	private static class InfiniteLoopRollbackTransformer extends RollbackTransformer {
-
-		/**
-		 * Constructor.
-		 */
-		InfiniteLoopRollbackTransformer() {
-			// Nothing to do.
-		}
-
-		@Override
-		protected void preTransform() {
-			// TODO !
-		}
-	}
+	/** Rollback transformer. */
+	private final InfiniteLoopRollbackTransformer rollbackTransformer;
 
 	/**
 	 * Constructor.
-	 *
-	 * @param transformableClassPredicate
+	 * 
+	 * @param api                          the ASM API version
+	 * @param transformableClassPredicate  predicate to determine if a class shall
+	 *                                     be transformed or excluded
+	 * @param transformableMethodPredicate predicate to determine if method shall be
+	 *                                     transformed or excluded
 	 */
 	InfiniteLoopTransformer(final int api, final Predicate<String> transformableClassPredicate,
 			final Predicate<String> transformableMethodPredicate) {
-		super(api, transformableClassPredicate, transformableMethodPredicate, new InfiniteLoopRollbackTransformer());
+		super(api, transformableClassPredicate, transformableMethodPredicate);
+		rollbackTransformer = new InfiniteLoopRollbackTransformer();
 	}
 
 	@Override
-	final MethodVisitor methodVisitor(final int api, final MethodVisitor delegateMethodVisitor) {
-		return new InfiniteLoopMethodVisitor(api, delegateMethodVisitor);
+	protected final MethodVisitor methodVisitor(final int api, final MethodVisitor delegateMethodVisitor,
+			final String visitedClassName, final String visitedMethodName) {
+		return new InfiniteLoopMethodVisitor(api, delegateMethodVisitor, visitedClassName, visitedMethodName)
+				.addListener(rollbackTransformer);
+	}
+
+	@Override
+	protected final RollbackTransformer rollbackTransformer() {
+		return rollbackTransformer;
 	}
 
 }
