@@ -1,11 +1,10 @@
-faulty gradle plugin
---------------------
+## faulty gradle plugin
 
-## Description
+### Description
 
 Integrate the faulty agent to your java code executed by gradle. **Work in progress.**
 
-## How to use it
+### How to use it
 
 ```gradle
 plugins {
@@ -52,7 +51,7 @@ test {
 }
 ```
 
-## TODO
+### TODO
 
 * Add faultyApi() task(?) which returns the faulty-api dependency
 * Support java application plugin

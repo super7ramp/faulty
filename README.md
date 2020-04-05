@@ -1,15 +1,14 @@
-faulty: Fantastic Agent Utility Leveraging Total Yoloness
----------------------------------------------------------
+## faulty: Fantastic Agent Utility Leveraging Total Yoloness
 
 **faulty** is a [Java instrumentation agent](https://docs.oracle.com/en/java/javase/14/docs/api/java.instrument/java/lang/instrument/package-summary.html) which allows to inject faults in Java applications.
 
-## Motivations
+### Motivations
 
 Provide a way to test resilience of a running complex application by injecting bugs in specific classes/packages, in particular in reportedly bad-quality/legacy/problem-nest/third-party code.
 
-## Get started
+### Get started
 
-### Inject bugs statically
+#### Inject bugs statically
 
 Launch your app `myApp.jar` with `faulty-agent.jar` as agent:
 
@@ -24,7 +23,7 @@ java -jar myApp.jar \
 
 ASM and ASM util must be added in class path as well (or bundled in agent jar).
 
-### Inject bugs dynamically
+#### Inject bugs dynamically
 
 E.g. for automated high level tests, assuming you have already some kind of framework to perform your high-level tests.
 
@@ -85,7 +84,7 @@ public void test() {
 }
 ```
 
-## Known issues
+### Known issues
 
 Injecting bug dynamically may fail with this error:
 
@@ -108,16 +107,16 @@ java -jar myApp.jar -javaagent:/path/to/faulty-agent.jar=\
 It will just pass the class into the ASM default transformer and seems to work the issue around.
 You have to mention precisely the classes that may be transformed later dynamically (no package name allowed).
 
-## TODO
+### TODO
 
-### Features
+#### Features
 
 * More bugs, ideas: Slowdown, Null result.
 * Provide a way to let user create _basic_ new bugs/extend existing ones.
 * Create a gradle plugin to allow magic configuration of the agent (like jacoco agent).
 * Make dependency on ASM util optional (it's just for debug printing).
 
-### Correctness
+#### Correctness
 
 * Make really unique the identification of modified methods: 2 methods can have same name, include method descriptor in bug parameters.
 * There are probably issues linked to rollback transformation: E.g. when two bugs applied at the same location, rollback may not work as expected. Solution may be to just reject bug injection for method that has already a bug (=> create real bug memory).
