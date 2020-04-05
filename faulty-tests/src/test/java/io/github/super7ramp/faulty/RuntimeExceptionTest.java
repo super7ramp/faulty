@@ -10,7 +10,7 @@ import io.github.super7ramp.faulty.api.FaultyFacade;
 import io.github.super7ramp.faulty.api.FaultyServices;
 import io.github.super7ramp.faulty.api.InjectedRuntimeException;
 import io.github.super7ramp.faulty.api.InjectionFailureException;
-import io.github.super7ramp.faulty.api.RevertableBug;
+import io.github.super7ramp.faulty.api.RevertableTransformation;
 import io.github.super7ramp.faulty.api.RuntimeExceptionParameters;
 
 /**
@@ -22,6 +22,15 @@ public class RuntimeExceptionTest {
 	 * This class is not supposed to produce a runtime exception. Let's change that.
 	 */
 	private static class InoffensiveComputer {
+		public final void compute() {
+			// empty
+		}
+	}
+
+	/**
+	 * This class is not supposed to produce a runtime exception. Let's change that.
+	 */
+	private static class AnotherInoffensiveComputer {
 		public final void compute() {
 			// empty
 		}
@@ -58,7 +67,7 @@ public class RuntimeExceptionTest {
 
 		final RuntimeExceptionParameters parameters = RuntimeExceptionParameters.of(InoffensiveComputer.class.getName(),
 				"compute");
-		final RevertableBug injectedBug = FaultyFacade.getServices().injectRuntimeException(parameters);
+		final RevertableTransformation injectedBug = FaultyFacade.getServices().injectRuntimeException(parameters);
 
 		final InoffensiveComputer computer = new InoffensiveComputer();
 		try {
@@ -73,5 +82,16 @@ public class RuntimeExceptionTest {
 
 		// shall not raise an exception
 		computer.compute();
+	}
+
+	/**
+	 * Check that runtime exception static injection works.
+	 * <p>
+	 * See gradle test run configuration.
+	 * 
+	 */
+	@Test(expected = InjectedRuntimeException.class)
+	public void staticIjectRuntimeException() {
+		new AnotherInoffensiveComputer().compute();
 	}
 }

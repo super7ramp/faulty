@@ -12,10 +12,10 @@ public interface AgentConfiguration {
 	 */
 	Collection<String> classesToPreTransform();
 
-//	/**
-//	 * TODO return the bug to apply at agent start (i.e. in premain)
-//	 */
-	// BugTasks staticBugs();
+	/**
+	 * @return the bugs to apply at agent start
+	 */
+	Collection<StaticBug> staticBugs();
 
 	/**
 	 * @return the ASM API version to use

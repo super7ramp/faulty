@@ -1,8 +1,12 @@
 package io.github.super7ramp.faulty.agent.config;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.logging.Logger;
+
+import io.github.super7ramp.faulty.agent.config.StaticBug.Kind;
 
 /**
  * Arguments:
@@ -35,8 +39,10 @@ public final class ArgumentParser {
 	/**
 	 * @return the agent configuration deduced from parsed arguments
 	 */
+	// don't judge me
 	public final AgentConfiguration parse() {
 		final Collection<String> transformableClassPrefixes = new HashSet<>();
+		final Collection<StaticBug> staticBugs = new HashSet<>();
 		int api = 7;
 		for (final String splittedArguments : args.split(",")) {
 			final String[] keyValue = splittedArguments.split("=");
@@ -50,12 +56,34 @@ public final class ArgumentParser {
 				case "api":
 					api = Integer.parseInt(value);
 					break;
+				case "infiniteLoop":
+					parseBug(value, Kind.INFINITE_LOOP).ifPresent(staticBugs::add);
+					break;
+				case "infiniteInterruptibleLoop":
+					parseBug(value, Kind.INFINITE_INTERRUPTIBLE_LOOP).ifPresent(staticBugs::add);
+					break;
+				case "runtimeException":
+					parseBug(value, Kind.RUNTIME_EXCEPTION).ifPresent(staticBugs::add);
+					break;
 				default:
 					LOGGER.warning("Unknown key: " + key);
 				}
 			}
 		}
-		return new AgentConfigurationImpl(transformableClassPrefixes, api);
+		return new AgentConfigurationImpl(transformableClassPrefixes, staticBugs, api);
+	}
+
+	private static Optional<StaticBug> parseBug(final String location, final Kind kind) {
+		final String[] splittedLocation = location.split("\\.");
+		if (splittedLocation.length < 2) {
+			return Optional.empty();
+		}
+		final int methodNameIndex = splittedLocation.length - 1;
+		final String methodName = splittedLocation[methodNameIndex];
+		final String className = String.join(".",
+				Arrays.copyOfRange(splittedLocation, 0, methodNameIndex /* exclusive. */));
+		final StaticBug bug = new StaticBugImpl(className, methodName, kind);
+		return Optional.of(bug);
 	}
 
 }

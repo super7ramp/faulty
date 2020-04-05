@@ -8,9 +8,16 @@ dependencies {
 test.dependsOn project(':faulty-agent').tasks.jar
 
 test {
-    jvmArgs '-javaagent:' + project(':faulty-agent').tasks.jar.archivePath
+    // Add java agent to JVM args, with some static bugs so that we can test static bug injection 
+    def args =
+        'infiniteLoop=io.github.super7ramp.faulty.InfiniteLoopTest$AnotherInoffensiveTask.run,' +
+        'infiniteInterruptibleLoop=io.github.super7ramp.faulty.InterruptibleInfiniteLoopTest$AnotherNothing.run,' +
+        'runtimeException=io.github.super7ramp.faulty.RuntimeExceptionTest$AnotherInoffensiveComputer.compute'
+
+    jvmArgs '-javaagent:' + project(':faulty-agent').tasks.jar.archivePath + '=' + args
+    
+    // Verbose logging for all tests
     testLogging {
-        // Verbose logging for all tests
         events 'passed', 'skipped', 'failed', 'standardOut', 'standardError'
     }
 }

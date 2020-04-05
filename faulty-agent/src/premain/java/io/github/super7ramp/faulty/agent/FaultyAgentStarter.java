@@ -1,34 +1,43 @@
 package io.github.super7ramp.faulty.agent;
 
-import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
-import java.lang.instrument.UnmodifiableClassException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.logging.Logger;
 
 import io.github.super7ramp.faulty.agent.config.AgentConfiguration;
 import io.github.super7ramp.faulty.agent.config.ArgumentParser;
+import io.github.super7ramp.faulty.agent.config.StaticBug;
+import io.github.super7ramp.faulty.agent.transformers.RevertableClassFileTransformer;
 import io.github.super7ramp.faulty.agent.transformers.Transformers;
+import io.github.super7ramp.faulty.api.AgentNotLaunchedException;
+import io.github.super7ramp.faulty.api.InjectionFailureException;
 
 /**
  * Faulty agent starter.
  */
-public final class FaultyAgentStarter {
+final class FaultyAgentStarter {
 
 	/** Logger. */
 	private static final Logger LOGGER = Logger.getLogger(FaultyAgentStarter.class.getName());
 
-	/** Instrumentation utilities. */
-	private final Instrumentation instrumentation;
+	/** Instrumentation proxy. */
+	private final TransformationInjector injector;
 
 	/**
 	 * Constructor.
 	 * 
-	 * @param anInstrumentation the instrumentation utilities
+	 * @param instrumentation the instrumentation utilities
 	 */
-	public FaultyAgentStarter(final Instrumentation anInstrumentation) {
-		instrumentation = anInstrumentation;
+	FaultyAgentStarter(final Instrumentation instrumentation) {
+		/*
+		 * Attach actual Instrumentation to InstrumentationProxy so that it can be
+		 * accessed later, from the rest of this class as well as from elsewhere.
+		 */
+		final InstrumentationProxy instrumentationProxy = InstrumentationProxy.getInstance();
+		instrumentationProxy.attach(instrumentation);
+
+		// The boilerplate code to transform classes
+		injector = new TransformationInjector(instrumentationProxy);
 	}
 
 	/**
@@ -36,7 +45,7 @@ public final class FaultyAgentStarter {
 	 * 
 	 * @param arguments arguments passed in command line
 	 */
-	public void start(final String arguments) {
+	void start(final String arguments) {
 		LOGGER.info("Agent starting...");
 
 		/*
@@ -46,21 +55,65 @@ public final class FaultyAgentStarter {
 		LOGGER.info(conf.toString());
 
 		/*
-		 * 2. Apply pre-transformation with NoOpTransformer to the classes susceptible
-		 * to be transformed later.
+		 * 2. Apply pre-transformation to the classes susceptible to be transformed
+		 * later.
 		 */
 		preTransform(conf.classesToPreTransform());
 
 		/*
 		 * 3. Apply potential bugs specified statically in arguments.
 		 */
-		// TODO
+		injectStaticBugs(conf.staticBugs());
 
-		/*
-		 * 4. Store info inside InstrumentationProxy so they can be dynamically used
-		 */
-		InstrumentationProxy.getInstance().attach(instrumentation);
 		LOGGER.info("Agent started.");
+	}
+
+	/**
+	 * Inject bugs as defined in configuration.
+	 * 
+	 * @param staticBugs bugs as defined in configuration
+	 */
+	private void injectStaticBugs(final Iterable<StaticBug> staticBugs) {
+		for (final StaticBug bug : staticBugs) {
+			final RevertableClassFileTransformer transformer = bugToTransformer(bug);
+			try {
+				injector.injectTransformation(bug.className(), transformer);
+			} catch (final InjectionFailureException e) {
+				LOGGER.warning("A static bug injection failed: " + e.getMessage());
+			} catch (final AgentNotLaunchedException e) {
+				/*
+				 * That should not happen since instrumentation proxy is properly initialized in
+				 * constructor.
+				 */
+				throw new IllegalStateException(e);
+			}
+		}
+	}
+
+	/**
+	 * Returns the appropriate {@link RevertableClassFileTransformer} from given
+	 * {@link StaticBug}.
+	 * 
+	 * @param bug the bug
+	 * @return the corresponding transformer
+	 */
+	private static RevertableClassFileTransformer bugToTransformer(final StaticBug bug) {
+		final RevertableClassFileTransformer transformer;
+		switch (bug.kind()) {
+		case INFINITE_INTERRUPTIBLE_LOOP:
+			transformer = Transformers.interruptibleInfiniteLoopTransformer(bug.className()::equals,
+					bug.methodName()::equals);
+			break;
+		case INFINITE_LOOP:
+			transformer = Transformers.infiniteLoopTransformer(bug.className()::equals, bug.methodName()::equals);
+			break;
+		case RUNTIME_EXCEPTION:
+			transformer = Transformers.runtimeExceptionTransformer(bug.className()::equals, bug.methodName()::equals);
+			break;
+		default:
+			throw new IllegalStateException("Unreachable code.");
+		}
+		return transformer;
 	}
 
 	/**
@@ -69,30 +122,20 @@ public final class FaultyAgentStarter {
 	 * @param classesToPreTransform the classes to pre-transform
 	 */
 	private void preTransform(final Collection<String> classesToPreTransform) {
-		/*
-		 * Build class list to transform.
-		 */
-		final Collection<Class<?>> classes = new ArrayList<>();
-		for (final String prefix : classesToPreTransform) {
+		if (!classesToPreTransform.isEmpty()) {
+			final RevertableClassFileTransformer transformer = Transformers
+					.dummyTransformer(classesToPreTransform::contains);
 			try {
-				classes.add(Class.forName(prefix));
-			} catch (final ClassNotFoundException e) {
-				LOGGER.warning(prefix + " is not a known class, it will no be pre-transformed");
-			}
-		}
-
-		if (!classes.isEmpty()) {
-			final ClassFileTransformer transformer = Transformers.dummyTransformer(classesToPreTransform::contains);
-			instrumentation.addTransformer(transformer, true);
-			try {
-				LOGGER.info("Pre-transforming " + classes);
-				instrumentation.retransformClasses(classes.toArray(new Class<?>[0]));
-			} catch (final UnmodifiableClassException e) {
+				injector.injectTransformation(classesToPreTransform, transformer);
+			} catch (final InjectionFailureException e) {
+				LOGGER.warning("Pre-transformation failed: " + e.getMessage());
+			} catch (final AgentNotLaunchedException e) {
+				/*
+				 * That should not happen since instrumentation proxy is properly initialized in
+				 * constructor.
+				 */
 				throw new IllegalStateException(e);
-			} finally {
-				instrumentation.removeTransformer(transformer);
 			}
 		}
-
 	}
 }

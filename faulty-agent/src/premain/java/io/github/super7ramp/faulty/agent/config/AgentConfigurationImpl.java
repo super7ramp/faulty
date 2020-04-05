@@ -11,6 +11,9 @@ final class AgentConfigurationImpl implements AgentConfiguration {
 	/** The transformable classes. */
 	private final Collection<String> classesToPreTransform;
 
+	/** Static bugs. */
+	private final Collection<StaticBug> staticBugs;
+
 	/** The ASM API version. */
 	private final int api;
 
@@ -18,16 +21,14 @@ final class AgentConfigurationImpl implements AgentConfiguration {
 	 * Constructor.
 	 * 
 	 * @param someClassesToPreTransform the transformable classes
+	 * @param someStaticBugs            the static bugs to apply at agent startup
 	 * @param anApi                     the ASM API version
 	 */
-	AgentConfigurationImpl(final Collection<String> someClassesToPreTransform, final int anApi) {
+	AgentConfigurationImpl(final Collection<String> someClassesToPreTransform,
+			final Collection<StaticBug> someStaticBugs, final int anApi) {
 		classesToPreTransform = someClassesToPreTransform;
+		staticBugs = someStaticBugs;
 		api = anApi;
-	}
-
-	@Override
-	public final Collection<String> classesToPreTransform() {
-		return Collections.unmodifiableCollection(classesToPreTransform);
 	}
 
 	@Override
@@ -36,11 +37,24 @@ final class AgentConfigurationImpl implements AgentConfiguration {
 	}
 
 	@Override
+	public final Collection<String> classesToPreTransform() {
+		return Collections.unmodifiableCollection(classesToPreTransform);
+	}
+
+	@Override
+	public final Collection<StaticBug> staticBugs() {
+		return Collections.unmodifiableCollection(staticBugs);
+	}
+
+	@Override
 	public final String toString() {
 		final StringBuilder sb = new StringBuilder();
 		sb.append("Agent conf: API = ").append(api);
 		if (!classesToPreTransform.isEmpty()) {
 			sb.append(", classes to pre-transform= ").append(classesToPreTransform);
+		}
+		if (!staticBugs.isEmpty()) {
+			sb.append(", static bugs= ").append(staticBugs);
 		}
 		return sb.toString();
 	}

@@ -3,7 +3,7 @@ package io.github.super7ramp.faulty.api;
 /**
  * An access to an injected bug.
  */
-public interface RevertableBug {
+public interface RevertableTransformation {
 
 	/**
 	 * Remove the injected bug, i.e. restore the original code.
