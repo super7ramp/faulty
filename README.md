@@ -11,41 +11,45 @@ Provide a way to test resilience of a running complex application by injecting b
 
 ### Inject bugs statically
 
-1. Retrieve the agent jar from XXX or build it with:
+Launch your app `myApp.jar` with `faulty-agent.jar` as agent:
 
 ```
-gradle faulty-agent:jar
+java -jar myApp.jar \
+     -javaagent:/path/to/faulty-agent.jar=\
+        infiniteLoop=com.example.myapp.ClassA.method,\
+        infiniteLoop=com.example.myapp.ClassB.method,\
+        infiniteInterruptibleLoop=com.example.myapp.ClassC.method,\
+        runtimeException=com.example.myapp.ClassD.method
 ```
 
-2. Put it in your classpath.
-
-3. Launch your app with:
-
-```
-java -jar myApp.jar -javaagent:faulty-agent.jar=\
-    infiniteLoop=com.example.myapp.ClassA.method,\
-    infiniteLoop=com.example.myapp.ClassB.method,\
-    infiniteInterruptibleLoop=com.example.myapp.ClassC.method,\
-    runtimeException=com.example.myapp.ClassD.method
-```
-
-See XXX for the the list of injectable bugs.
+ASM and ASM util must be added in class path as well (or bundled in agent jar).
 
 ### Inject bugs dynamically
 
-E.g. for automated high level tests.
+E.g. for automated high level tests, assuming you have already some kind of framework to perform your high-level tests.
 
-It supposes you have already some kind of framework to perform your high-level tests.
+1. Put `faulty-api` in the classpath of your test configuration and add `-javaagent:/path/to/faulty-agent.jar` to the JVM arguments. Example with gradle:
 
-1. Retrieve the `faulty-api` and `faulty-agent` jars from XXX or build them with:
+```gradle
+configuration faultyAgent {
+    implementation 'io.github.super7ramp.faulty:faulty-agent'
+}
+
+test {
+    testImplementation 'io.github.super7ramp.faulty:faulty-api'
+    testRuntimeOnly 'org.ow2.asm:asm'
+    testRuntimeOnly 'org.ow2.asm:asm-util'
+
+    def faultyAgentArgs = '' // optional, see above for arguments you can pass
+    def faultyAgentJar = configurations.faultyAgent.asPath[0]
+    jvmArgs '-javaagent:' + faultyAgentJar + '=' + args
+}
 
 ```
-gradle faulty-api:jar faulty-agent:jar
-```
 
-2. Put them in the classpath of your test configuration, as wall as the `-javaagent:faulty-agent.jar` JVM argument. Alternatively, if you use gradle, you can let the [faulty gradle plugin](faulty-gradle/README.md) do the job
+Alternatively, you can let the [faulty gradle plugin](faulty-gradle/README.md) do the job for you.
 
-3. Test it.
+2. Test it.
 
 ```java
 @Test
@@ -89,16 +93,14 @@ Injecting bug dynamically may fail with this error:
 java.lang.UnsupportedOperationException: class redefinition failed: attempted to change the schema (add/remove fields)
 ```
 
-This is not supposed to happen: faulty only does very limited modifications, nothing supposed to utterly change class definition, in particular no class field added nor removed.
+This is not supposed to happen: faulty is not supposed to change class definition, it just modifies method bodies, so no class field added nor removed…
 
 Maybe ASM produces a byte-code too different from what the compiler produces and thus from what the JVM initially read - this issue only occurs when the class has already been loaded by the JVM - preventing the JVM to do the re-transformation.
-
-Or most probably there is something I don't understand, as usual.
 
 Anyway, a workaround is to "pre-transform" the classes statically with the `preTransform` parameter:
 
 ```
-java -jar myApp.jar -javaagent:faulty-agent.jar=\
+java -jar myApp.jar -javaagent:/path/to/faulty-agent.jar=\
     preTransform=com.example.myapp.ClassA,\
     preTransform=com.example.myapp.ClassB
 ```
@@ -110,10 +112,10 @@ You have to mention precisely the classes that may be transformed later dynamica
 
 ### Features
 
-* More bugs. Ideas: Slowdown, Null result. Difficulty: Easy/Medium.
-* Provide a way to let user create new bugs/extend existing ones. Difficulty: Hard.
-* Create a gradle plugin to allow magic configuration of the agent (like jacoco agent): In progress.
-* Make dependency on ASM utils optional (it's just for debug printing).
+* More bugs, ideas: Slowdown, Null result.
+* Provide a way to let user create _basic_ new bugs/extend existing ones.
+* Create a gradle plugin to allow magic configuration of the agent (like jacoco agent).
+* Make dependency on ASM util optional (it's just for debug printing).
 
 ### Correctness
 
@@ -121,4 +123,5 @@ You have to mention precisely the classes that may be transformed later dynamica
 * There are probably issues linked to rollback transformation: E.g. when two bugs applied at the same location, rollback may not work as expected. Solution may be to just reject bug injection for method that has already a bug (=> create real bug memory).
 * Check retransformation issues: Why is preTransform needed?
 * API version passed are parameter is not actually use, to fix.
+* More tests.
 * Check if services work remotely: App launched in a JVM with agent, test framework in another JVM, attach to the app JVM, call faulty services.

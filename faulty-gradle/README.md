@@ -3,7 +3,7 @@ faulty gradle plugin
 
 ## Description
 
-Integrate the faulty agent to your java code executed by gradle. Work in progress.
+Integrate the faulty agent to your java code executed by gradle. **Work in progress.**
 
 ## How to use it
 
@@ -56,4 +56,4 @@ test {
 
 * Add faultyApi() task(?) which returns the faulty-api dependency
 * Support java application plugin
-* See if it's possible to actually test it
+* Actually test it
