@@ -4,7 +4,8 @@ import java.util.function.Predicate;
 
 import org.objectweb.asm.MethodVisitor;
 
-import io.github.super7ramp.faulty.agent.transformers.rollback.RollbackTransformer;
+import io.github.super7ramp.faulty.agent.transformers.rollback.RollbackTranformer;
+import io.github.super7ramp.faulty.agent.transformers.rollback.RollbackTransformers;
 import io.github.super7ramp.faulty.agent.transformers.visitors.RuntimeExceptionMethodVisitor;
 
 /**
@@ -13,7 +14,7 @@ import io.github.super7ramp.faulty.agent.transformers.visitors.RuntimeExceptionM
 final class RuntimeExceptionTransformer extends AbstractMethodInClassTransformer {
 
 	/** Rollback transformer. */
-	private final RollbackTransformer rollbackTransformer;
+	private final RollbackTranformer rollbackTransformer;
 
 	/**
 	 * Constructor.
@@ -27,7 +28,7 @@ final class RuntimeExceptionTransformer extends AbstractMethodInClassTransformer
 	RuntimeExceptionTransformer(final int api, final Predicate<String> transformableClassPredicate,
 			final Predicate<String> transformableMethodPredicate) {
 		super(api, transformableClassPredicate, transformableMethodPredicate);
-		rollbackTransformer = new RollbackTransformer();
+		rollbackTransformer = RollbackTransformers.defaultRollbackTransformer();
 	}
 
 	@Override
@@ -37,7 +38,7 @@ final class RuntimeExceptionTransformer extends AbstractMethodInClassTransformer
 	}
 
 	@Override
-	protected final RollbackTransformer rollbackTransformer() {
+	protected final RollbackTranformer rollbackTransformer() {
 		return rollbackTransformer;
 	}
 

@@ -14,10 +14,10 @@ import java.util.logging.Logger;
  * Can be specialized by implementing a custom {@link #preTransform(String)}
  * method.
  */
-public class RollbackTransformer implements ClassFileTransformer {
+class DefaultRollbackTransformer implements RollbackTranformer {
 
 	/** Logger. */
-	private static final Logger LOGGER = Logger.getLogger(RollbackTransformer.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(DefaultRollbackTransformer.class.getName());
 
 	/** The original class file buffers. */
 	private final Map<String, ByteBuffer> originalClassFileBuffers;
@@ -25,7 +25,7 @@ public class RollbackTransformer implements ClassFileTransformer {
 	/**
 	 * Constructor.
 	 */
-	public RollbackTransformer() {
+	DefaultRollbackTransformer() {
 		originalClassFileBuffers = new HashMap<>();
 	}
 
@@ -56,6 +56,7 @@ public class RollbackTransformer implements ClassFileTransformer {
 	 * @param className class name
 	 * @param buffer    the class file buffer to set
 	 */
+	@Override
 	public final void setOriginalClassFileBuffer(final String className, final byte[] buffer) {
 		if (originalClassFileBuffers.containsKey(className)) {
 			throw new IllegalStateException("Rollback transformer must be linked to exactly one original transformer"

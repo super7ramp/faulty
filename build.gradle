@@ -1,5 +1,9 @@
 apply from: 'libraries.gradle'
 
+repositories {
+    mavenCentral()
+}
+
 subprojects {
     apply plugin: 'java'
     apply plugin: 'maven-publish'

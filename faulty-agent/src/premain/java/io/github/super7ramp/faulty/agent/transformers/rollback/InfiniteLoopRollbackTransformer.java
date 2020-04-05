@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * A custom {@link RollbackTransformer} that will break the infinite loop as
- * {@link #preTransform()} step.
+ * A custom {@link DefaultRollbackTransformer} that will break the infinite loop
+ * as {@link #preTransform()} step.
  * <p>
  * If this step is not performed then infinite loop will keep going since that
  * upon transformation active frames continue to run the bytecode of the
@@ -14,7 +14,7 @@ import java.util.Collection;
  * @see java.lang.instrument.Instrumentation#retransformClasses(Class...)
  *      Instrumentation#retransformClasses(Class...)
  */
-public final class InfiniteLoopRollbackTransformer extends RollbackTransformer implements TransformationListener {
+final class InfiniteLoopRollbackTransformer extends DefaultRollbackTransformer implements ListeningRollbackTransformer {
 
 	/**
 	 * Loops injected by the {@link InfiniteLoopTransformer} associated to this
@@ -25,7 +25,7 @@ public final class InfiniteLoopRollbackTransformer extends RollbackTransformer i
 	/**
 	 * Constructor.
 	 */
-	public InfiniteLoopRollbackTransformer() {
+	InfiniteLoopRollbackTransformer() {
 		loops = new ArrayList<>();
 	}
 

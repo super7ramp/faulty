@@ -18,7 +18,7 @@ import io.github.super7ramp.faulty.agent.transformers.rollback.TransformationLis
  * with:
  * 
  * <pre>
- * 0  ldc <String "toto"> [2]
+ * 0  ldc <String "com.example.ClassName,methodName"> [2]
  * 2  invokestatic io.github.super7ramp.faulty.agent.transformers.ActiveLoops.isPresent(java.lang.String) : boolean [3]
  * 5  ifeq 11
  * 8  goto 0
@@ -71,6 +71,7 @@ public class InfiniteLoopMethodVisitor extends MethodVisitor {
 		final Label loopLabel = new Label();
 		final Label outsideLoopLabel = new Label();
 
+		// Loop while ActiveLoops.isPresent(loopIdentifier) returns true
 		visitLabel(loopLabel);
 		visitLdcInsn(ActiveLoops.idOf(className, methodName));
 		visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(ActiveLoops.class), "isPresent",
@@ -82,14 +83,8 @@ public class InfiniteLoopMethodVisitor extends MethodVisitor {
 
 		// Add the rest of the original code
 		mv.visitCode();
-	}
-
-	@Override
-	public final void visitEnd() {
-		super.visitEnd();
 
 		// Notify listeners that transformation occurred
 		listeners.forEach(listener -> listener.notifyTransformation(className, methodName));
 	}
-
 }

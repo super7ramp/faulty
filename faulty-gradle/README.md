@@ -3,13 +3,18 @@ faulty gradle plugin
 
 ## Description
 
-Integrate the faulty agent to your java code executed by gradle.
+Integrate the faulty agent to your java code executed by gradle. Work in progress.
 
 ## How to use it
 
 ```gradle
 plugins {
-    id 'io.github.super7ramp.faulty-plugin'
+    id 'io.github.super7ramp.faulty-plugin' version: '1.0-snapshot'
+}
+
+dependencies {
+    // If you do dynamic injection with the faulty-api in your tests 
+    testImplementation faultyApi()
 }
 
 test {
@@ -49,6 +54,6 @@ test {
 
 ## TODO
 
-* publish
-* support java application plugin 
-* see if it's possible to actually test it
+* Add faultyApi() task(?) which returns the faulty-api dependency
+* Support java application plugin
+* See if it's possible to actually test it

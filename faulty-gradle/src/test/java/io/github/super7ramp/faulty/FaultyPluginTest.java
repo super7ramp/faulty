@@ -9,6 +9,7 @@ import java.io.PrintStream;
 import org.gradle.testkit.runner.BuildResult;
 import org.gradle.testkit.runner.GradleRunner;
 import org.gradle.testkit.runner.TaskOutcome;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -17,6 +18,7 @@ import org.junit.rules.TemporaryFolder;
 /**
  * Tests for {@link FaultyPlugin}.
  */
+@SuppressWarnings("javadoc")
 public class FaultyPluginTest {
 
 	private static final String TEST_PROGRAM_CLASSPATH = testProgramClassPath();
@@ -24,21 +26,27 @@ public class FaultyPluginTest {
 	@Rule
 	public final TemporaryFolder testProjectDir = new TemporaryFolder();
 
+	@Before
+	public void before() throws IOException {
+
+		try (final PrintStream settingsFile = new PrintStream(testProjectDir.newFile("settings.gradle"))) {
+			settingsFile.println("pluginManagement {");
+			settingsFile.println("    repositories {");
+			settingsFile.println("        mavenLocal()");
+			settingsFile.println("        mavenCentral()");
+			settingsFile.println("    }");
+			settingsFile.println("    plugins {");
+			settingsFile.println("        id 'io.github.super7ramp.faulty.faulty-plugin' version '1.0-SNAPSHOT'");
+			settingsFile.println("    }");
+			settingsFile.println("}");
+		}
+	}
+
 	@Test
-	@Ignore("doesn't work because it can't find the faulty-agent and faulty-api dependencies...")
+	@Ignore("test is hard")
 	public void applyPlugin() throws IOException {
 
 		try (final PrintStream buildFile = new PrintStream(testProjectDir.newFile("build.gradle"))) {
-//			buildFile.println("buildscript {");
-//			buildFile.println("    repositories {");
-//			buildFile.println("        mavenLocal()");
-//			buildFile.println("    }");
-//			buildFile.println("}");
-
-			buildFile.println("plugins {");
-			buildFile.println("    id 'io.github.super7ramp.faulty.faulty-plugin'");
-			buildFile.println("}");
-
 			buildFile.println("task myTask(type: JavaExec) {");
 			buildFile.println("    faulty {");
 			buildFile.println("        enabled = true");
@@ -57,7 +65,7 @@ public class FaultyPluginTest {
 		runner.withProjectDir(testProjectDir.getRoot());
 		runner.withArguments(taskName);
 		runner.withPluginClasspath();
-		// for debugging, add withDebug(true)
+		// for debugging, add runner.withDebug(true)
 		return runner.build();
 	}
 

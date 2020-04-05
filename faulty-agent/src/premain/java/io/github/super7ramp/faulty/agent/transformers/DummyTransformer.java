@@ -4,7 +4,8 @@ import java.util.function.Predicate;
 
 import org.objectweb.asm.ClassVisitor;
 
-import io.github.super7ramp.faulty.agent.transformers.rollback.RollbackTransformer;
+import io.github.super7ramp.faulty.agent.transformers.rollback.RollbackTranformer;
+import io.github.super7ramp.faulty.agent.transformers.rollback.RollbackTransformers;
 import io.github.super7ramp.faulty.agent.transformers.visitors.DummyVisitor;
 
 /**
@@ -13,7 +14,7 @@ import io.github.super7ramp.faulty.agent.transformers.visitors.DummyVisitor;
 final class DummyTransformer extends AbstractTransformer {
 
 	/** Rollback transformer. */
-	private final RollbackTransformer rollbackTransformer;
+	private final RollbackTranformer rollbackTransformer;
 
 	/**
 	 * Constructor.
@@ -24,7 +25,7 @@ final class DummyTransformer extends AbstractTransformer {
 	 */
 	DummyTransformer(final int api, final Predicate<String> transformableClassPredicate) {
 		super(api, transformableClassPredicate);
-		rollbackTransformer = new RollbackTransformer();
+		rollbackTransformer = RollbackTransformers.defaultRollbackTransformer();
 	}
 
 	@Override
@@ -34,7 +35,7 @@ final class DummyTransformer extends AbstractTransformer {
 	}
 
 	@Override
-	protected final RollbackTransformer rollbackTransformer() {
+	protected final RollbackTranformer rollbackTransformer() {
 		return rollbackTransformer;
 	}
 

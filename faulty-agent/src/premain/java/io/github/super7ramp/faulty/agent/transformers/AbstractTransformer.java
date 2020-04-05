@@ -15,7 +15,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.util.TraceClassVisitor;
 
-import io.github.super7ramp.faulty.agent.transformers.rollback.RollbackTransformer;
+import io.github.super7ramp.faulty.agent.transformers.rollback.RollbackTranformer;
 
 /**
  * Base class for {@link ClassFileTransformer} implementations.
@@ -35,12 +35,13 @@ abstract class AbstractTransformer implements RevertableClassFileTransformer {
 	private final Predicate<String> transformableClass;
 
 	/**
-	 * Constructor with custom {@link RollbackTransformer}.
+	 * Constructor with custom {@link DefaultRollbackTransformer}.
 	 * 
 	 * @param apiVersion                  the ASM API version to use
 	 * @param transformableClassPredicate predicate to determine if a class shall be
 	 *                                    transformed or excluded
-	 * @param rollbackTransformer         a custom {@link RollbackTransformer}
+	 * @param rollbackTransformer         a custom
+	 *                                    {@link DefaultRollbackTransformer}
 	 */
 	AbstractTransformer(final int apiVersion, final Predicate<String> transformableClassPredicate) {
 		transformableClass = transformableClassPredicate;
@@ -114,9 +115,9 @@ abstract class AbstractTransformer implements RevertableClassFileTransformer {
 	}
 
 	/**
-	 * @return {@link RollbackTransformer} implementation
+	 * @return {@link RollbackTranformer} implementation
 	 */
-	protected abstract RollbackTransformer rollbackTransformer();
+	protected abstract RollbackTranformer rollbackTransformer();
 
 	/**
 	 * The method visitor the abstraction will call.

@@ -5,15 +5,11 @@ faulty: Fantastic Agent Utility Leveraging Total Yoloness
 
 ## Motivations
 
-Provide a way to test resilience of a complex application:
-- At application boundaries
-- By injecting bugs in specific classes/packages, in particular in reportedly bad-quality/legacy/problem-nest/third-party code.
+Provide a way to test resilience of a running complex application by injecting bugs in specific classes/packages, in particular in reportedly bad-quality/legacy/problem-nest/third-party code.
 
 ## Get started
 
 ### Inject bugs statically
-
-E.g. for a demonstration.
 
 1. Retrieve the agent jar from XXX or build it with:
 
@@ -116,7 +112,7 @@ You have to mention precisely the classes that may be transformed later dynamica
 
 * More bugs. Ideas: Slowdown, Null result. Difficulty: Easy/Medium.
 * Provide a way to let user create new bugs/extend existing ones. Difficulty: Hard.
-* Create a gradle plugin to allow magic configuration of the agent (like jacoco agent): In progress. Difficulty: Harder than I thought.
+* Create a gradle plugin to allow magic configuration of the agent (like jacoco agent): In progress.
 * Make dependency on ASM utils optional (it's just for debug printing).
 
 ### Correctness

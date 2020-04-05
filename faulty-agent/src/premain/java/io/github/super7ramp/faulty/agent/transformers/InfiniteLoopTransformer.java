@@ -4,8 +4,8 @@ import java.util.function.Predicate;
 
 import org.objectweb.asm.MethodVisitor;
 
-import io.github.super7ramp.faulty.agent.transformers.rollback.InfiniteLoopRollbackTransformer;
-import io.github.super7ramp.faulty.agent.transformers.rollback.RollbackTransformer;
+import io.github.super7ramp.faulty.agent.transformers.rollback.ListeningRollbackTransformer;
+import io.github.super7ramp.faulty.agent.transformers.rollback.RollbackTransformers;
 import io.github.super7ramp.faulty.agent.transformers.visitors.InfiniteLoopMethodVisitor;
 
 /**
@@ -14,7 +14,7 @@ import io.github.super7ramp.faulty.agent.transformers.visitors.InfiniteLoopMetho
 final class InfiniteLoopTransformer extends AbstractMethodInClassTransformer {
 
 	/** Rollback transformer. */
-	private final InfiniteLoopRollbackTransformer rollbackTransformer;
+	private final ListeningRollbackTransformer rollbackTransformer;
 
 	/**
 	 * Constructor.
@@ -28,7 +28,7 @@ final class InfiniteLoopTransformer extends AbstractMethodInClassTransformer {
 	InfiniteLoopTransformer(final int api, final Predicate<String> transformableClassPredicate,
 			final Predicate<String> transformableMethodPredicate) {
 		super(api, transformableClassPredicate, transformableMethodPredicate);
-		rollbackTransformer = new InfiniteLoopRollbackTransformer();
+		rollbackTransformer = RollbackTransformers.infiniteLoopRollbackTransformer();
 	}
 
 	@Override
@@ -39,7 +39,7 @@ final class InfiniteLoopTransformer extends AbstractMethodInClassTransformer {
 	}
 
 	@Override
-	protected final RollbackTransformer rollbackTransformer() {
+	protected final ListeningRollbackTransformer rollbackTransformer() {
 		return rollbackTransformer;
 	}
 

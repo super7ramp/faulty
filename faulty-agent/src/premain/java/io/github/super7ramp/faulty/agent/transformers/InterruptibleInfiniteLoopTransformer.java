@@ -4,7 +4,8 @@ import java.util.function.Predicate;
 
 import org.objectweb.asm.MethodVisitor;
 
-import io.github.super7ramp.faulty.agent.transformers.rollback.RollbackTransformer;
+import io.github.super7ramp.faulty.agent.transformers.rollback.ListeningRollbackTransformer;
+import io.github.super7ramp.faulty.agent.transformers.rollback.RollbackTransformers;
 import io.github.super7ramp.faulty.agent.transformers.visitors.InterruptibleInfiniteLoopMethodVisitor;
 
 /**
@@ -14,12 +15,12 @@ import io.github.super7ramp.faulty.agent.transformers.visitors.InterruptibleInfi
  * TODO validate signature of the method first, it must throw an
  * InterruptedException otherwise transformation won't work
  *
- * TODO use InfiniteLoopRollbackTransformer
+ * TODO pass InfiniteLoopRollbackTransformer to method visitor
  */
 final class InterruptibleInfiniteLoopTransformer extends AbstractMethodInClassTransformer {
 
 	/** Rollback transformer. */
-	private final RollbackTransformer rollbackTransformer;
+	private final ListeningRollbackTransformer rollbackTransformer;
 
 	/**
 	 * Constructor.
@@ -33,7 +34,7 @@ final class InterruptibleInfiniteLoopTransformer extends AbstractMethodInClassTr
 	InterruptibleInfiniteLoopTransformer(final int api, final Predicate<String> transformableClassPredicate,
 			final Predicate<String> transformableMethodPredicate) {
 		super(api, transformableClassPredicate, transformableMethodPredicate);
-		rollbackTransformer = new RollbackTransformer();
+		rollbackTransformer = RollbackTransformers.infiniteLoopRollbackTransformer();
 	}
 
 	@Override
@@ -43,7 +44,7 @@ final class InterruptibleInfiniteLoopTransformer extends AbstractMethodInClassTr
 	}
 
 	@Override
-	protected final RollbackTransformer rollbackTransformer() {
+	protected final ListeningRollbackTransformer rollbackTransformer() {
 		return rollbackTransformer;
 	}
 

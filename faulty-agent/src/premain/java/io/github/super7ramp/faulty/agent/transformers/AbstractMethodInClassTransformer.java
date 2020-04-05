@@ -5,7 +5,6 @@ import java.util.function.Predicate;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 
-import io.github.super7ramp.faulty.agent.transformers.rollback.RollbackTransformer;
 import io.github.super7ramp.faulty.agent.transformers.visitors.MethodInClassVisitor;
 import io.github.super7ramp.faulty.agent.transformers.visitors.MethodVisitorFactory;
 
@@ -18,14 +17,15 @@ abstract class AbstractMethodInClassTransformer extends AbstractTransformer {
 	private final Predicate<String> transformableMethodPredicate;
 
 	/**
-	 * Constructor with custom {@link RollbackTransformer}
+	 * Constructor with custom {@link DefaultRollbackTransformer}
 	 *
 	 * @param api                           the ASM API version
 	 * @param transformableClassPredicate   predicate to determine if a class shall
 	 *                                      be transformed or excluded
 	 * @param aTransformableMethodPredicate predicate to determine if method shall
 	 *                                      be transformed or excluded
-	 * @param rollbackTransformer           a custom {@link RollbackTransformer}
+	 * @param rollbackTransformer           a custom
+	 *                                      {@link DefaultRollbackTransformer}
 	 */
 	AbstractMethodInClassTransformer(final int api, final Predicate<String> transformableClassPredicate,
 			final Predicate<String> aTransformableMethodPredicate) {
