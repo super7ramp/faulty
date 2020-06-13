@@ -19,7 +19,7 @@ No control on method signature, if two methods have the same name then both will
 
 ### Inject faults dynamically
 
-```
+```java
 /*
  * Get the faulty services.
  */
