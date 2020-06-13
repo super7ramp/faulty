@@ -1,0 +1,6 @@
+sonarqube {
+  properties {
+    property "sonar.projectKey", "super7ramp_faulty"
+    property "sonar.organization", "super7ramp"
+  }
+}
