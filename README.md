@@ -23,7 +23,7 @@ No control on method signature, if two methods have the same name then both will
 /*
  * Get the faulty services.
  */
-final FaultyServices faulty = FaultyFacade.getServices();
+final FaultyServices faulty = Faulty.getServices();
 
 /*
  * Inject an interruptible loop.
@@ -31,7 +31,7 @@ final FaultyServices faulty = FaultyFacade.getServices();
 final InfiniteLoopParameters parameters = InfiniteLoopParameters.of("com.example.myapp.TaskA",
                                                                     "run",
                                                                     true /* interruptible. */);
-final RevertableBug injectedLoop = faulty.injectInfiniteLoop(parameters);
+final RevertableTransformation injectedLoop = faulty.injectInfiniteLoop(parameters);
  
 /*
  * Optionally, eject the bug; might be useful if you don't restart the application after every
