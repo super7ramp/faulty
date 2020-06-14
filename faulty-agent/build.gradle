@@ -19,5 +19,9 @@ sourceSets {
         java {
             srcDirs = [ 'src/premain/java' ]
         }
+        
+        resources {
+            srcDirs = [ 'src/premain/resources' ]
+        }
     }
 }

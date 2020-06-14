@@ -13,7 +13,7 @@ import org.junit.Test;
 
 import io.github.super7ramp.faulty.api.AgentNotFoundException;
 import io.github.super7ramp.faulty.api.AgentNotLaunchedException;
-import io.github.super7ramp.faulty.api.FaultyFacade;
+import io.github.super7ramp.faulty.api.Faulty;
 import io.github.super7ramp.faulty.api.FaultyServices;
 import io.github.super7ramp.faulty.api.InfiniteLoopParameters;
 import io.github.super7ramp.faulty.api.InjectionFailureException;
@@ -34,7 +34,7 @@ public class InfiniteLoopTest {
 	 */
 	@Before
 	public void before() throws AgentNotFoundException {
-		services = FaultyFacade.getServices();
+		services = Faulty.getServices();
 	}
 
 	/**

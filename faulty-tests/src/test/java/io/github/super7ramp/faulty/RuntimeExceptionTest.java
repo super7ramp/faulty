@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import io.github.super7ramp.faulty.api.AgentNotFoundException;
 import io.github.super7ramp.faulty.api.AgentNotLaunchedException;
-import io.github.super7ramp.faulty.api.FaultyFacade;
+import io.github.super7ramp.faulty.api.Faulty;
 import io.github.super7ramp.faulty.api.FaultyServices;
 import io.github.super7ramp.faulty.api.InjectedRuntimeException;
 import io.github.super7ramp.faulty.api.InjectionFailureException;
@@ -49,7 +49,7 @@ public class RuntimeExceptionTest {
 
 		final RuntimeExceptionParameters parameters = RuntimeExceptionParameters.of(InoffensiveComputer.class.getName(),
 				"compute");
-		FaultyFacade.getServices().injectRuntimeException(parameters);
+		Faulty.getServices().injectRuntimeException(parameters);
 
 		new InoffensiveComputer().compute();
 	}
@@ -67,7 +67,7 @@ public class RuntimeExceptionTest {
 
 		final RuntimeExceptionParameters parameters = RuntimeExceptionParameters.of(InoffensiveComputer.class.getName(),
 				"compute");
-		final RevertableTransformation injectedBug = FaultyFacade.getServices().injectRuntimeException(parameters);
+		final RevertableTransformation injectedBug = Faulty.getServices().injectRuntimeException(parameters);
 
 		final InoffensiveComputer computer = new InoffensiveComputer();
 		try {

@@ -10,11 +10,9 @@ public final class AgentNotFoundException extends Exception {
 
 	/**
 	 * Constructor.
-	 * 
-	 * @param cause the cause
 	 */
-	public AgentNotFoundException(final Throwable cause) {
-		super(cause);
+	public AgentNotFoundException() {
+		// Nothing to do.
 	}
 
 }

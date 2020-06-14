@@ -2,7 +2,7 @@ package io.github.super7ramp.faulty;
 
 import io.github.super7ramp.faulty.api.AgentNotFoundException;
 import io.github.super7ramp.faulty.api.AgentNotLaunchedException;
-import io.github.super7ramp.faulty.api.FaultyFacade;
+import io.github.super7ramp.faulty.api.Faulty;
 import io.github.super7ramp.faulty.api.InjectionFailureException;
 import io.github.super7ramp.faulty.api.RuntimeExceptionParameters;
 
@@ -19,7 +19,7 @@ public final class ExampleMain {
 	public static void main(final String[] args) {
 		try {
 			final RuntimeExceptionParameters parameters = RuntimeExceptionParameters.of("Toto", "tata");
-			FaultyFacade.getServices().injectRuntimeException(parameters);
+			Faulty.getServices().injectRuntimeException(parameters);
 		} catch (final AgentNotFoundException e) {
 			throw new IllegalStateException(e);
 		} catch (final AgentNotLaunchedException e) {
